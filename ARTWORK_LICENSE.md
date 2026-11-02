@@ -2,9 +2,11 @@
 
 The five character PNGs listed below are licensed under **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
 
+The documentation demonstrations `docs/media/startup.gif` and `docs/media/reasoning-slider.gif` incorporate this artwork and are provided under the same CC BY-NC 4.0 license. The slider demonstration uses an isolated example page with the actual project skin logic, not a recording of a user's Codex session.
+
 - License: https://creativecommons.org/licenses/by-nc/4.0/
 - Legal code: https://creativecommons.org/licenses/by-nc/4.0/legalcode.en
-- Attribution: **SkyJiashu / Codex Crystal Dragon**, https://github.com/SkyJiashu/codex-crystal-dragon
+- Attribution: **SkyJiashu / Codex Reasoning Background Slider**, https://github.com/SkyJiashu/codex-reasoning-background-slider
 
 | Source file | Runtime package file |
 | --- | --- |

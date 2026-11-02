@@ -36,7 +36,9 @@ foreach ($name in $art.Keys) {
     if ((Get-FileHash -LiteralPath $sourceArt).Hash -ne (Get-FileHash -LiteralPath $outputArt).Hash) { throw 'Approved art copy mismatch.' }
 }
 foreach ($name in @('skin.js','skin.css','preload.js')) { Copy-Item -LiteralPath (Join-Path $projectRoot ('src/' + $name)) -Destination (Join-Path $outputRoot $name) -Force }
-foreach ($name in @('README.md','LICENSE','NOTICE','ARTWORK_LICENSE.md','THIRD_PARTY_NOTICES.md','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd')) { Copy-Item -LiteralPath (Join-Path $projectRoot $name) -Destination (Join-Path $outputRoot $name) -Force }
+foreach ($name in @('README.md','README.en.md','LICENSE','NOTICE','ARTWORK_LICENSE.md','THIRD_PARTY_NOTICES.md','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd')) { Copy-Item -LiteralPath (Join-Path $projectRoot $name) -Destination (Join-Path $outputRoot $name) -Force }
+[IO.Directory]::CreateDirectory((Join-Path $outputRoot 'docs'))|Out-Null
+foreach($name in @('install-agent.zh-CN.md','install-agent.en.md')) {Copy-Item -LiteralPath (Join-Path $projectRoot ('docs/'+$name)) -Destination (Join-Path $outputRoot ('docs/'+$name)) -Force}
 Copy-Item -LiteralPath (Join-Path $projectRoot 'assets/README.md') -Destination (Join-Path $outputRoot 'assets/README.md') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'scripts/install-shortcut.ps1') -Destination (Join-Path $outputRoot 'scripts/install-shortcut.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'licenses/dragon-codex-boot-MIT.txt') -Destination (Join-Path $outputRoot 'licenses/dragon-codex-boot-MIT.txt') -Force

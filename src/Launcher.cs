@@ -241,7 +241,7 @@ namespace CrystalDragon {
             // Keep the native surface invisible until WPF has authored its first frame.
             // The client is not launched during this interval, so no unready app can flash through.
             Opacity = preview ? 1 : 0; ShowInTaskbar = false;
-            Title = preview ? "紫晶龙娘 · 离线动画预览" : "紫晶龙娘 · Codex";
+            Title = preview ? "Codex 推理背景滑块 · 动画预览" : "Codex 推理背景滑块";
             WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize; Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(16,14,25));
             Width = Math.Min(1120, SystemParameters.WorkArea.Width * .88); Height = Width * 9 / 16;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -329,7 +329,7 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 var report = new {
-                    buildVersion="0.2.14.0", previewOnly=preview, firstFramePresented, firstFrameMs,
+                    buildVersion="0.2.15.0", previewOnly=preview, firstFramePresented, firstFrameMs,
                     frameMatched=matchedFrame, backgroundPreparationEnabled,
                     shellReady=!preview&&controller.ShellReady, assetsDecoded=!preview&&controller.Ready,
                     rendererPaintReady=!preview&&controller.PaintReady,
@@ -384,16 +384,16 @@ namespace CrystalDragon {
             try {
                 using (var client = new NamedPipeClientStream(".", ControlName, PipeDirection.InOut)) {
                     client.Connect(1200); client.WriteByte(1); client.Flush();
-                    MessageBox.Show(client.ReadByte() == 1 ? "已请求恢复原生外观。请等待数秒；恢复结果记录在测试包 qa/status.json。辅助进程会等 Codex 正常退出后结束，不会关闭 Codex。" : "恢复请求未确认。", "紫晶龙娘");
+                    MessageBox.Show(client.ReadByte() == 1 ? "已请求恢复原生外观。请等待数秒；恢复结果记录在测试包 qa/status.json。辅助进程会等 Codex 正常退出后结束，不会关闭 Codex。" : "恢复请求未确认。", "Codex 推理背景滑块");
                 }
                 return 0;
-            } catch { MessageBox.Show("没有找到本启动器的活动连接。无需修改官方客户端。", "紫晶龙娘"); return 1; }
+            } catch { MessageBox.Show("没有找到本启动器的活动连接。无需修改官方客户端。", "Codex 推理背景滑块"); return 1; }
         }
         internal static void WriteStatus(string directory, string status, bool ready, bool restored, string failureStage = null, string errorClass = null, int? nativeErrorCode = null) {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 string path = Path.Combine(qa, "status.json"), temp = path + ".next";
-                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "0.2.14.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
+                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "0.2.15.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
                 if (File.Exists(path)) File.Replace(temp, path, null); else File.Move(temp, path);
             } catch { }
         }
@@ -429,7 +429,7 @@ namespace CrystalDragon {
                 }
                 bool owns;
                 using (Mutex mutex = new Mutex(true, "Local\\" + ControlName, out owns)) {
-                    if (!owns) { MessageBox.Show("本启动器已有活动连接。请使用恢复入口，或等待 Codex 正常退出。", "紫晶龙娘"); return 0; }
+                    if (!owns) { MessageBox.Show("本启动器已有活动连接。请使用恢复入口，或等待 Codex 正常退出。", "Codex 推理背景滑块"); return 0; }
                     var frame=NativeWindow.InitialFrame();
                     string cached=CachePreparation.Prepare(root,frame);
                     var controller = new SkinController(root); controller.BeginPreparation();
@@ -444,8 +444,8 @@ namespace CrystalDragon {
                                     ? "Codex 仍在运行，包括可能留在后台的窗口。\n\n请先保存工作并手动完整退出 Codex，再双击 Start-Cold-Test.cmd。\n\n本次没有启动新客户端，也没有注入或修改当前页面。"
                                     : "启动条件未通过检查，Codex 没有被启动或修改。\n\n检查步骤：" + controller.FailureStage + "\n错误类型：" + controller.ErrorClass + (controller.NativeErrorCode.HasValue ? "\n系统错误码：" + controller.NativeErrorCode : "") + "\n\n请查看本目录 qa/status.json 后回到聊天继续排查。";
                                 // Show the outcome before shutdown, even if the user already skipped the splash.
-                                if (splash.IsVisible) MessageBox.Show(splash, message, "紫晶龙娘 · 启动未执行", MessageBoxButton.OK, MessageBoxImage.Information);
-                                else MessageBox.Show(message, "紫晶龙娘 · 启动未执行", MessageBoxButton.OK, MessageBoxImage.Information);
+                                if (splash.IsVisible) MessageBox.Show(splash, message, "Codex 推理背景滑块 · 启动未执行", MessageBoxButton.OK, MessageBoxImage.Information);
+                                else MessageBox.Show(message, "Codex 推理背景滑块 · 启动未执行", MessageBoxButton.OK, MessageBoxImage.Information);
                             }
                             app.Shutdown();
                         }));
@@ -460,7 +460,7 @@ namespace CrystalDragon {
                 string explanation=error is FileNotFoundException&&error.Message=="ffmpeg-required"
                     ? "首次生成动画缓存需要 FFmpeg。\n\n请安装 FFmpeg 并加入 PATH，或将 ffmpeg.exe 放在启动器目录，再重新启动。生成完成后将直接使用本地缓存。"
                     : "启动器未完成操作。请查看 qa/status.json。不会自动关闭或重启 Codex。";
-                MessageBox.Show(explanation,"紫晶龙娘"); return 1;
+                MessageBox.Show(explanation,"Codex 推理背景滑块"); return 1;
             }
         }
     }

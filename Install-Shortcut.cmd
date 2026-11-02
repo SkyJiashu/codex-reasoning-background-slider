@@ -5,5 +5,5 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo The independent Codex - Crystal Dragon shortcut is ready.
+echo The independent Codex Reasoning Slider shortcut is ready.
 pause

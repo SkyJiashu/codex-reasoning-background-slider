@@ -1,23 +1,49 @@
-# Codex Crystal Dragon · 紫晶龙娘
+# Codex 推理背景滑块
 
-为 Windows Codex 桌面客户端提供“数据汇聚成龙娘”的启动动画，以及随原生推理强度变化的角色背景。
+**Codex Reasoning Background Slider**
+
+**简体中文** · [English](README.en.md)
+
+拖动 Codex 原生推理强度滑块，即可预览对应的龙娘背景。五档形象通过姿态、服饰和龙翼区分，Ultra 配有局部紫色与星星效果；同时提供“数据汇聚成龙娘”的本地缓存启动动画。
 
 这是社区独立启动器，与 OpenAI 无隶属关系。使用自己的启动入口，不覆盖官方程序、不自动改写原版快捷方式。
 
 已包含五档获准公开分发的角色素材。代码和素材均采用非商业许可，具体范围见下方许可说明。
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/SkyJiashu/codex-crystal-dragon/main/assets/stages-v11-nose/medium.png" width="300" alt="中档龙娘背景">
-  <img src="https://raw.githubusercontent.com/SkyJiashu/codex-crystal-dragon/main/assets/stages-v11-nose/ultra.png" width="300" alt="Ultra 龙娘背景">
-</p>
+## 让你的 agent 自动安装
+
+复制下面这段提示词，发给你自己的 agent。完整步骤见 [中文自动安装指南](docs/install-agent.zh-CN.md)。
+
+```text
+请帮我自动安装 Codex 推理背景滑块：
+https://github.com/SkyJiashu/codex-reasoning-background-slider
+先完整阅读并检查仓库 README，以及 https://github.com/SkyJiashu/codex-reasoning-background-slider/blob/main/docs/install-agent.zh-CN.md，再按指南安装。
+我授权你安装本项目和必要的本地 FFmpeg、创建独立快捷方式，并运行不启动 Codex 的离线预览验证。
+保留官方 Codex 和原版入口，不读取认证配置；若 Codex 正在运行，先完成安装准备，不关闭它。
+完成后告诉我安装版本、目录、验证结果，以及下次应使用的启动入口。
+```
+
+## 效果演示
+
+### 推理背景滑块
+
+![拖动推理强度切换背景](docs/media/reasoning-slider.gif)
+
+独立演示页面，使用实际皮肤逻辑；展示拖动预览、档位背景和 Ultra 配色。实际使用中由 Codex 原生控件提供档位。
+
+### 本地启动动画
+
+![数据汇聚成龙娘的启动动画](docs/media/startup.gif)
+
+首次根据用户显示器与 DPI 在本地生成动画缓存，以后直接播放。仓库和发布包不附带预制启动视频；这里的 GIF 仅用于说明效果。
 
 ## 功能
 
+- 五档角色背景跟随原生推理控件，拖动时即可预览。Ultra 增加局部紫色与星星效果，浅色、深色界面分别适配。
+- 原生控件尚在初始化时使用上次确认的角色图作视觉过渡；控件就绪后跟随真实档位。程序不替用户更改模型或推理设置。
 - 首次在用户电脑上按显示器工作区分辨率和 DPI 生成动画缓存；相同条件直接复用，渲染代码或素材改变时自动重建。
 - 播放阶段使用本地 60 fps 视频，不再即时计算粒子和文字。仓库及发布包不附带预制视频。
 - 动画开始时后台启动 Codex 并预加载背景；播放结束停留约 0.3 秒，再用约 0.55 秒淡出交接。`Esc` 可跳过动画。
-- 五档角色背景跟随原生推理控件，拖动时即可预览。Ultra 增加局部紫色与星星效果，浅色、深色界面分别适配。
-- 原生控件尚在初始化时使用上次确认的角色图作视觉过渡；控件就绪后跟随真实档位。程序不替用户更改模型或推理设置。
 
 ## 运行要求
 
@@ -26,11 +52,11 @@
 - **首次生成缓存需要支持 `libx264` 的 FFmpeg**。将 `ffmpeg.exe` 放在启动器目录，或安装为系统可找到的命令。已有缓存的播放不需要再次调用编码器。
 - Node.js 用于开发测试；`ffprobe` 仅供开发者检查编码结果。
 
-项目不会自动下载或安装第三方程序。
+启动器本身不会自动下载安装第三方程序。上方提示词授权用户自己的 agent 准备必要依赖。
 
 ## 直接使用
 
-从 [Releases](https://github.com/SkyJiashu/codex-crystal-dragon/releases/latest) 下载 Windows x64 运行包，解压到长期保留的目录，准备好 FFmpeg，然后完全退出 Codex，双击 `CrystalDragon.exe`。也可运行 `Install-Shortcut.cmd` 创建独立桌面入口。
+从 [最新 Release](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/latest) 下载 Windows x64 运行包，解压到长期保留的目录，准备好 FFmpeg，然后保存工作并完全退出 Codex，双击 `CrystalDragon.exe`。程序文件名为兼容已有安装而保留。也可运行 `Install-Shortcut.cmd` 创建 **Codex Reasoning Slider** 独立桌面入口。
 
 首次启动会在本地生成动画缓存；源码和运行包都不包含预制视频。
 
@@ -65,7 +91,7 @@
 
 ## 缓存与本地数据
 
-动画缓存保存在当前用户本地应用数据目录中的 `CrystalDragon/animation-cache`，不写入仓库。播放窗口跟随 Codex 的位置、大小和 DPI，人物保持比例；播放期间调整窗口大小不会重新编码。
+动画缓存保存在当前用户本地应用数据目录中的 `CrystalDragon/animation-cache`，内部目录名为兼容已有缓存而保留，不写入仓库。播放窗口跟随 Codex 的位置、大小和 DPI，人物保持比例；播放期间调整窗口大小不会重新编码。
 
 启动器目录中的 `appearance-stage.txt` 只保存上次由原生控件确认的视觉档位。初始化期间的过渡图不会被当作真实推理档位，也不会提前启用 Ultra 配色。
 
@@ -104,11 +130,3 @@ node --test tests/skin.test.cjs tests/preload.test.cjs
 上游 MIT 部分继续适用其原有许可，本项目的非商业条款不会撤销上游已有授权。来源与保留的声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 随项目提供的五张角色图采用 [CC BY-NC 4.0（署名—非商业性使用）](ARTWORK_LICENSE.md)，不授予商业用途许可。维护者已确认素材自有或获准公开分发；素材包含 AI 生成或编辑。项目不授予第三方品牌或标识的权利。自定义图片说明见 [assets/README.md](assets/README.md)。
-
-## English
-
-Codex Crystal Dragon is an independent community launcher for the Windows Codex desktop app. It provides a locally generated startup film and character backgrounds that follow native reasoning controls.
-
-The first launch renders a cache for the current display and DPI using FFmpeg with `libx264`. Later launches reuse it. Source code and five authorized character images are included; pre-rendered movies are not. The launcher uses its own shortcut and leaves the official installation and shortcuts intact.
-
-Project additions are source-available under PolyForm Noncommercial 1.0.0. Bundled character artwork is provided under CC BY-NC 4.0; see ARTWORK_LICENSE.md. Third-party components retain their original licenses. This project is not affiliated with OpenAI.

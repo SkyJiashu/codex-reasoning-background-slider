@@ -1,6 +1,6 @@
 using System.Reflection;
-[assembly: AssemblyTitle("Crystal Dragon Codex Skin")]
-[assembly: AssemblyVersion("0.2.14.0")]
-[assembly: AssemblyFileVersion("0.2.14.0")]
+[assembly: AssemblyTitle("Codex Reasoning Background Slider")]
+[assembly: AssemblyVersion("0.2.15.0")]
+[assembly: AssemblyFileVersion("0.2.15.0")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("StartupPresentationTests")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("StartupPreparationTests")]

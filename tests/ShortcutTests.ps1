@@ -20,7 +20,7 @@ $official.Description='Unrelated official-looking fixture'
 $official.Save()
 $officialHash=(Get-FileHash -LiteralPath $officialPath -Algorithm SHA256).Hash
 & $installer -DestinationDirectory $destination
-$shortcutPath=Join-Path $destination 'Codex - Crystal Dragon.lnk'
+$shortcutPath=Join-Path $destination 'Codex Reasoning Slider.lnk'
 $shortcut=$shell.CreateShortcut($shortcutPath)
 if($shortcut.TargetPath -ne $fakeExe -or $shortcut.Arguments -ne '--cold-test' -or $shortcut.WorkingDirectory -ne $release) {throw 'Release shortcut properties did not match.'}
 # An owned shortcut may be updated, without scanning other links.
@@ -45,6 +45,6 @@ $builtExe=Join-Path $source 'build/CrystalDragon/CrystalDragon.exe'
 [IO.File]::WriteAllText($builtExe,'Not executable: source build fixture only.')
 $sourceDestination=Join-Path $fixture 'source-destination'
 & $sourceInstaller -DestinationDirectory $sourceDestination
-$sourceLink=$shell.CreateShortcut((Join-Path $sourceDestination 'Codex - Crystal Dragon.lnk'))
+$sourceLink=$shell.CreateShortcut((Join-Path $sourceDestination 'Codex Reasoning Slider.lnk'))
 if($sourceLink.TargetPath -ne $builtExe -or $sourceLink.Arguments -ne '--cold-test') {throw 'Source build shortcut properties did not match.'}
 Write-Output 'Shortcut tests passed: release/source targets, owned update and unowned byte preservation. No program or real Desktop shortcut was launched or changed.'

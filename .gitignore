@@ -3,6 +3,7 @@ build/
 installed/
 .local/
 *.user
+.playwright-cli/
 publication/
 qa/
 cache/
