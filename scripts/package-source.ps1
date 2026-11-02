@@ -1,6 +1,6 @@
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$entries=@('README.md','README.en.md','LICENSE','NOTICE','ARTWORK_LICENSE.md','THIRD_PARTY_NOTICES.md','.gitignore','.gitattributes','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd','licenses/dragon-codex-boot-MIT.txt','tools/RenderFilm.cs','docs/architecture.md','docs/install-agent.zh-CN.md','docs/install-agent.en.md','docs/media/startup.gif','docs/media/reasoning-slider.gif')
+$entries=@('README.md','README.zh-CN.md','README.en.md','LICENSE','NOTICE','ARTWORK_LICENSE.md','THIRD_PARTY_NOTICES.md','.gitignore','.gitattributes','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd','licenses/dragon-codex-boot-MIT.txt','tools/RenderFilm.cs','docs/architecture.md','docs/install-agent.zh-CN.md','docs/install-agent.en.md','docs/media/startup.gif','docs/media/reasoning-slider.gif')
 foreach($folder in @('src','tests')){
     $entries+=@(Get-ChildItem -LiteralPath (Join-Path $root $folder) -File | Where-Object {$_.Extension -in @('.cs','.js','.cjs','.css','.manifest','.ps1')} | ForEach-Object {($_.FullName.Substring($root.Length+1)).Replace('\','/')})
 }

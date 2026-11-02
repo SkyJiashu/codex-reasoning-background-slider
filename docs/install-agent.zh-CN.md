@@ -1,6 +1,6 @@
 # 自动安装提示词（中文）
 
-[English](install-agent.en.md) · [返回项目说明](../README.md)
+[English](install-agent.en.md) · [返回项目说明](../README.zh-CN.md)
 
 复制下面整段，发给你在 Windows 电脑上使用的 agent。需要该 agent 具备联网、下载文件和运行本地程序的能力。首次编码可能需要一些时间；安装验证使用独立预览，不会强制关闭当前 Codex。
 

@@ -1,6 +1,6 @@
 # Automatic installation prompt (English)
 
-[中文](install-agent.zh-CN.md) · [Project README](../README.en.md)
+[中文](install-agent.zh-CN.md) · [Project README](../README.md)
 
 Copy the entire prompt below to an agent running on your Windows computer. It needs network access and permission to download files and run local programs. Initial encoding may take some time. Verification uses the independent preview and does not require closing your current Codex session.
 
