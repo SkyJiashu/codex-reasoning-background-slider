@@ -72,7 +72,7 @@ namespace CrystalDragon {
         internal static bool IsAlreadyRunning(string executable) {
             foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable))) {
                 using (process) {
-                    try { if (String.Equals(Path.GetDirectoryName(process.MainModule.FileName), Path.GetDirectoryName(executable), StringComparison.OrdinalIgnoreCase)) return true; }
+                    try { if (OfficialIdentity.IsRunningClient(process,executable)) return true; }
                     catch { return true; } // Cannot prove an existing client absent: do not attempt a cold launch.
                 }
             }
@@ -192,7 +192,9 @@ namespace CrystalDragon {
                                 }
                                 // UI and art must be prepared in the same verified document.
                                 ShellReady=currentPrepared; Ready=currentDecoded; PaintReady=currentPaint;
-                                preparedOnce=preparedOnce||currentPrepared; Status=preparedStatus??passStatus;
+                                // A working decoded skin must not be removed merely because
+                                // a native editor/sidebar diagnostic uses an unfamiliar layout.
+                                preparedOnce=preparedOnce||currentDecoded; Status=preparedStatus??passStatus;
                             } catch (TimeoutException) { Interlocked.Increment(ref protocolTimeouts); ShellReady=false; Ready=false; PaintReady=false; Status="connection-not-confirmed"; }
                             catch { ShellReady=false; Ready=false; PaintReady=false; Status="connection-not-confirmed"; }
                         }
@@ -234,6 +236,7 @@ namespace CrystalDragon {
         long animationEndedMs = -1, shellReadyMs = -1, assetsReadyMs = -1;
         NativeWindow.Rect previousFrame;
         internal event Action FirstFramePresented;
+        internal bool CompletedNormally {get{return transitionComplete&&!skipped&&!timedOut;}}
         internal Splash(string directory, IStartupClient live, string filmDirectory, NativeWindow.Rect? initialFrame = null) {
             this.directory=directory;
             controller = live; preview = live == null;
@@ -329,7 +332,7 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 var report = new {
-                    buildVersion="0.2.15.0", previewOnly=preview, firstFramePresented, firstFrameMs,
+                    buildVersion="0.2.16.0", previewOnly=preview, firstFramePresented, firstFrameMs,
                     frameMatched=matchedFrame, backgroundPreparationEnabled,
                     shellReady=!preview&&controller.ShellReady, assetsDecoded=!preview&&controller.Ready,
                     rendererPaintReady=!preview&&controller.PaintReady,
@@ -393,15 +396,16 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 string path = Path.Combine(qa, "status.json"), temp = path + ".next";
-                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "0.2.15.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
+                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "0.2.16.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
                 if (File.Exists(path)) File.Replace(temp, path, null); else File.Move(temp, path);
             } catch { }
         }
         [STAThread] public static int Main(string[] args) {
             string root = AppDomain.CurrentDomain.BaseDirectory;
             try {
-                if (args.Length > 1 || (args.Length == 1 && args[0] != "--preview" && args[0] != "--cold-test" && args[0] != "--restore" && args[0] != "--render-preview" && args[0] != "--probe" && args[0] != "--probe-create")) return 2;
+                if (args.Length > 1 || (args.Length == 1 && args[0] != "--preview" && args[0] != "--cold-test" && args[0] != "--restore" && args[0] != "--render-preview" && args[0] != "--probe" && args[0] != "--probe-create" && args[0] != "--entrypoints")) return 2;
                 if (args.Contains("--restore")) return Restore();
+                if (args.Contains("--entrypoints"))return EntrypointSettings.Manage(root);
                 if (args.Contains("--probe")) {
                     var identity = SkinController.Discover(root); Directory.CreateDirectory(Path.Combine(root, "qa"));
                     File.WriteAllText(Path.Combine(root, "qa", "identity.json"), new JavaScriptSerializer().Serialize(new { ready = true, version = identity["version"], launchMethod = "verified-package-alias", coldStartAllowed = !SkinController.IsAlreadyRunning((string)identity["path"]), error_class = (string)null })); return 0;
@@ -435,6 +439,10 @@ namespace CrystalDragon {
                     var controller = new SkinController(root); controller.BeginPreparation();
                     Control(controller);
                     var splash = new Splash(root,controller,cached,frame);
+                    splash.Closed+=delegate {
+                        if(splash.CompletedNormally)
+                            app.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle,new Action(()=>EntrypointSettings.OfferSafely(root)));
+                    };
                     splash.FirstFramePresented += delegate { Task.Run(delegate {
                         controller.Run();
                         app.Dispatcher.BeginInvoke(new Action(delegate {

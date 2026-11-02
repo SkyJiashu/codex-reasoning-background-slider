@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -11,9 +12,13 @@ using Microsoft.Win32.SafeHandles;
 
 namespace CrystalDragon {
     internal static class OfficialIdentity {
-        const string Family = "OpenAI.Codex_2p2nqsd0c76g0";
+        internal const string Family = "OpenAI.Codex_2p2nqsd0c76g0";
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern int GetPackagesByPackageFamily(string family, ref uint count, IntPtr names, ref uint characters, IntPtr buffer);
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern int GetPackagePathByFullName(string fullName, ref uint length, StringBuilder path);
+        [DllImport("kernel32.dll", SetLastError = true)] static extern IntPtr OpenProcess(uint access, bool inherit, int processId);
+        [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr handle);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern bool QueryFullProcessImageName(IntPtr process, uint flags, StringBuilder image, ref uint characters);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern int GetPackageFamilyName(IntPtr process, ref uint characters, StringBuilder family);
         [DllImport("wintrust.dll", ExactSpelling = true)] static extern int WinVerifyTrust(IntPtr window, ref Guid action, ref TrustData data);
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern SafeFileHandle CreateFileW(string path, uint access, uint share, IntPtr security, uint disposition, uint flags, IntPtr template);
         [DllImport("kernel32.dll", SetLastError = true)] static extern bool DeviceIoControl(SafeFileHandle file, uint code, IntPtr input, uint inputSize, [Out] byte[] output, uint outputSize, out uint returned, IntPtr overlapped);
@@ -21,6 +26,31 @@ namespace CrystalDragon {
         [StructLayout(LayoutKind.Sequential)] struct TrustData {
             public uint Size; public IntPtr Policy, Sip; public uint Ui, Revocation, Union; public IntPtr File;
             public uint StateAction; public IntPtr State, Url; public uint Flags, Context;
+        }
+        internal static bool MatchesRunningClient(string executable, string runningImage, string runningFamily) {
+            return String.Equals(runningFamily,Family,StringComparison.OrdinalIgnoreCase) ||
+                String.Equals(System.IO.Path.GetDirectoryName(runningImage),System.IO.Path.GetDirectoryName(executable),StringComparison.OrdinalIgnoreCase);
+        }
+        static string ProcessFamily(IntPtr process) {
+            uint characters=0;
+            int result=GetPackageFamilyName(process,ref characters,null);
+            if(result==15700)return null; // APPMODEL_ERROR_NO_PACKAGE: another unpackaged app may share the executable name.
+            if(result!=122 || characters==0 || characters>32768)throw new Win32Exception(result,"running-package-query");
+            var family=new StringBuilder((int)characters);
+            result=GetPackageFamilyName(process,ref characters,family);
+            if(result!=0)throw new Win32Exception(result,"running-package-query");
+            return family.ToString();
+        }
+        internal static bool IsRunningClient(Process process, string executable) {
+            // Package family survives a Store update while the previous version's
+            // directory does not. Query only identity/path, never process memory.
+            IntPtr handle=OpenProcess(0x1000,false,process.Id); // PROCESS_QUERY_LIMITED_INFORMATION
+            if(handle==IntPtr.Zero)throw new Win32Exception(Marshal.GetLastWin32Error(),"running-process-query");
+            try {
+                uint characters=32768;var image=new StringBuilder((int)characters);
+                if(!QueryFullProcessImageName(handle,0,image,ref characters))throw new Win32Exception(Marshal.GetLastWin32Error(),"running-process-path");
+                return MatchesRunningClient(executable,image.ToString(),ProcessFamily(handle));
+            } finally {CloseHandle(handle);}
         }
         static void VerifySignature(string path) {
             IntPtr text = Marshal.StringToCoTaskMemUni(path), fileMemory = IntPtr.Zero;

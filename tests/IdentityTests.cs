@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -26,6 +27,9 @@ class IdentityTests {
         Array.Copy(BitConverter.GetBytes((ushort)(fields.Length + 4)), 0, record, 4, 2);
         Array.Copy(BitConverter.GetBytes(3u), 0, record, 8, 4); Array.Copy(fields, 0, record, 12, fields.Length); return record;
     }
+    static bool RunningMatch(string expected, string image, string family) {
+        return (bool)Identity.GetMethod("MatchesRunningClient",PrivateStatic).Invoke(null,new object[]{expected,image,family});
+    }
     static int Main() {
         string fixture = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "identity-fixture");
         Directory.CreateDirectory(Path.Combine(fixture, "app"));
@@ -42,8 +46,27 @@ class IdentityTests {
         Identity.GetMethod("ValidateAliasRecord", PrivateStatic).Invoke(null, new object[] { alias, alias.Length, package, file });
         foreach (byte[] invalid in new[] { AliasRecord("Other.Package", app, file), AliasRecord(family, family + "!OtherApp", file), AliasRecord(family, app, @"C:\wrong.exe"), new byte[14] }) Refuses("ValidateAliasRecord", invalid, invalid.Length, package, file);
         Refuses("ValidateAliasRecord", alias, 12, package, file);
+        string current=@"C:\Packages\OpenAI.Codex_2.0.0.0_x64__2p2nqsd0c76g0\app\ChatGPT.exe";
+        string previous=@"C:\Packages\OpenAI.Codex_1.0.0.0_x64__2p2nqsd0c76g0\app\ChatGPT.exe";
+        string other=@"C:\Packages\Other.ChatGPT_2.0.0.0_x64__other\app\ChatGPT.exe";
+        Assert(RunningMatch(current,current,null),"current executable directory remains protected without a package identity");
+        Assert(RunningMatch(current,previous,family),"previous package version blocks a second current-version launch");
+        Assert(!RunningMatch(current,other,"Other.ChatGPT_other"),"another packaged ChatGPT executable is not Codex");
+        Assert(!RunningMatch(current,other,null),"another unpackaged ChatGPT executable is not Codex");
+        Assert(!RunningMatch(current,previous,family+".extra"),"package-family prefix lookalike is not accepted");
+        using(var own=Process.GetCurrentProcess()) {
+            string ownImage=Assembly.GetExecutingAssembly().Location;
+            bool matched=(bool)Identity.GetMethod("IsRunningClient",PrivateStatic).Invoke(null,new object[]{own,ownImage});
+            Assert(matched,"limited-query handle can inspect the owned offline test process");
+            string ownFamily=Identity.GetMethod("ProcessFamily",PrivateStatic).Invoke(null,new object[]{own.Handle}) as string;
+            string unrelatedExpected=Path.Combine(fixture,"unrelated","ChatGPT.exe");
+            bool unrelated=(bool)Identity.GetMethod("IsRunningClient",PrivateStatic).Invoke(null,new object[]{own,unrelatedExpected});
+            Assert(unrelated==RunningMatch(unrelatedExpected,ownImage,ownFamily),"owned native query agrees with exact family/current-directory matching");
+            if(ownFamily==null)Assert(!unrelated,"owned unpackaged process does not block an unrelated application");
+        }
         Console.WriteLine("Official identity: traversal/rooted/missing/duplicate entries and DTD refused; unsigned and non-OpenAI executables refused.");
         Console.WriteLine("Execution alias: package/application/image binding, tag and truncated record checks passed.");
+        Console.WriteLine("Running-client guard: current directory, cross-version package family, unrelated same-name apps and owned-process limited query passed.");
         return 0;
     }
 }

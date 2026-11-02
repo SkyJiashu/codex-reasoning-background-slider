@@ -4,6 +4,8 @@ $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $node=(Get-Command node -ErrorAction Stop).Source
 & $node --test (Join-Path $projectRoot 'tests/skin.test.cjs') (Join-Path $projectRoot 'tests/preload.test.cjs')
 if ($LASTEXITCODE -ne 0) { throw 'Renderer tests failed.' }
+& (Join-Path $projectRoot 'tests/ShortcutTests.ps1')
+& (Join-Path $projectRoot 'tests/EntrypointBindingTests.ps1')
 $outputRoot = Join-Path $projectRoot 'build/CrystalDragon'
 $frameworkRoot=Join-Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Windows)) 'Microsoft.NET/Framework64/v4.0.30319'
 $compiler = Join-Path $frameworkRoot 'csc.exe'
@@ -84,6 +86,7 @@ if ($identity.ready -ne $true -or $identity.coldStartAllowed -isnot [bool]) { th
     status = 'offline-checks-passed'
     utc = [DateTime]::UtcNow.ToString('o')
     rendererTests = 'passed'
+    entrypointBinding = 'opt-in-bind-restore-external-edits-junction-fixtures-passed'
     startupPresentation = 'real-cached-mp4-mediaended-300ms-hold-550ms-fade-cached-hwnd-late-window-escape-passed'
     startupPreparation = 'parallel-readonly-no-native-creation-passed'
     movieCache = 'first-generation-reuse-resolution-dpi-source-art-invalidation-cancel-passed'

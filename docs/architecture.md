@@ -64,3 +64,11 @@ The last confirmed visual stage is stored as a bounded digit in the launcher's o
 The visual adapter depends on native interface attributes that may change between client versions. Unknown, ambiguous and unsupported control values are handled neutrally. No assumption is made that every model exposes the same number or meaning of effort stops.
 
 The official client may continue loading after handoff. Local film and background preparation reduce visual work during startup, but they do not replace or redefine the client's own loading lifecycle.
+
+## Optional shortcut binding
+
+After the first successful real launch, a user may opt in to routing existing current-user desktop and Start Menu shortcuts through the launcher. Declining keeps the independent entry and suppresses further first-use prompts; cancelling postpones the choice. `Manage-Entrypoints.cmd` opens binding/restoration controls later. Offline preview and identity probes never ask or bind.
+
+Only plain `.lnk` files with a verified official executable/alias target and no extra arguments, or the exact registered AppsFolder activation, are eligible. Original links are backed up locally before replacement. Restore operates only while the current shortcut still matches this project's installed hash; external edits, deletions and reparse-point parents are preserved. Protocol handlers, virtual MSIX entries, taskbar pins, other users and system directories are not modified.
+
+The helper mutex controls only this launcher's instances. Existing-client detection checks exact package family as well as the current executable directory, so an older package version with the same executable basename can be recognized. It cannot prevent an external entry from racing the check or an official updater from independently reopening the application. A plain window can also mean another window or a neutral/removed skin, not necessarily another process.

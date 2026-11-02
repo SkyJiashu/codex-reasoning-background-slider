@@ -77,7 +77,15 @@ The output is in `build/CrystalDragon/`.
 
 Run `Install-Shortcut.cmd` if you want a desktop entry. It only creates this project's independent shortcut and does not scan, replace or bind official entries. Keep the extracted or built directory in a permanent location.
 
-The original shortcut continues to open the official client directly. The launcher requires existing Codex clients to be closed; it does not take over a running instance.
+By default, original shortcuts continue to open the official client directly. The launcher requires existing Codex clients to be closed; it does not take over a running instance.
+
+### Optional: use the launcher for existing Codex shortcuts
+
+After the first successful real launch, the project asks whether to route current-user Codex desktop/Start Menu shortcuts through it. **No is the default.** Yes creates local backups before changing eligible plain `.lnk` files; Cancel postpones the question. The installation agent and offline preview never make this choice for you.
+
+Run `Manage-Entrypoints.cmd` later to bind or restore. Choosing restoration disables automatic rebinding. Previously opted-in links can follow a newer launcher installation only while they still match this project's saved state; external edits and deletions are preserved.
+
+This is shortcut binding, not a replacement for every Windows activation path. Protocol handlers, taskbar pins, virtual MSIX Start entries and official-update restarts are unchanged. A stock-looking window alone does not establish that another process was launched. The launcher recognizes the exact Codex package family across versions with the same executable basename and retains its own single-instance guard, but cannot control all external activations.
 
 ## Preview and restore
 
@@ -86,6 +94,7 @@ The original shortcut continues to open the official client directly. The launch
 | `CrystalDragon.exe` / `Start-Cold-Test.cmd` | Start a new Codex session through the animation and apply the backgrounds |
 | `Preview.cmd` | Preview only; may generate a cache on first use, without starting Codex |
 | `Restore.cmd` | Request removal of the backgrounds, styling and listeners applied by this launcher |
+| `Manage-Entrypoints.cmd` | Choose optional shortcut binding or restore locally backed-up links |
 
 Restoring appearance does not close Codex. The helper keeps its connection alive until the client it launched exits normally. To start through the official entry again, first completely exit the current session.
 
