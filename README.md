@@ -4,7 +4,12 @@
 
 这是社区独立启动器，与 OpenAI 无隶属关系。使用自己的启动入口，不覆盖官方程序、不自动改写原版快捷方式。
 
-当前公开版本提供代码，不附带角色原图。请使用自己创作或获准使用的 PNG，按 [assets/README.md](assets/README.md) 放入项目后构建。
+已包含五档获准公开分发的角色素材。代码和素材均采用非商业许可，具体范围见下方许可说明。
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/SkyJiashu/codex-crystal-dragon/main/assets/stages-v11-nose/medium.png" width="300" alt="中档龙娘背景">
+  <img src="https://raw.githubusercontent.com/SkyJiashu/codex-crystal-dragon/main/assets/stages-v11-nose/ultra.png" width="300" alt="Ultra 龙娘背景">
+</p>
 
 ## 功能
 
@@ -23,9 +28,15 @@
 
 项目不会自动下载或安装第三方程序。
 
+## 直接使用
+
+从 [Releases](https://github.com/SkyJiashu/codex-crystal-dragon/releases/latest) 下载 Windows x64 运行包，解压到长期保留的目录，准备好 FFmpeg，然后完全退出 Codex，双击 `CrystalDragon.exe`。也可运行 `Install-Shortcut.cmd` 创建独立桌面入口。
+
+首次启动会在本地生成动画缓存；源码和运行包都不包含预制视频。
+
 ## 从源码使用
 
-先按素材说明放好五张角色图，再在项目目录打开 PowerShell，运行：
+项目已包含所需角色图。在项目目录打开 PowerShell，运行：
 
 ```powershell
 .\scripts\build.ps1
@@ -92,12 +103,12 @@ node --test tests/skin.test.cjs tests/preload.test.cjs
 
 上游 MIT 部分继续适用其原有许可，本项目的非商业条款不会撤销上游已有授权。来源与保留的声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
-本仓库不分发角色原图，也不授予第三方素材的版权许可。使用者应自行提供有权使用的素材；代码许可范围及第三方声明见上文。
+随项目提供的五张角色图采用 [CC BY-NC 4.0（署名—非商业性使用）](ARTWORK_LICENSE.md)，不授予商业用途许可。维护者已确认素材自有或获准公开分发；素材包含 AI 生成或编辑。项目不授予第三方品牌或标识的权利。自定义图片说明见 [assets/README.md](assets/README.md)。
 
 ## English
 
 Codex Crystal Dragon is an independent community launcher for the Windows Codex desktop app. It provides a locally generated startup film and character backgrounds that follow native reasoning controls.
 
-The first launch renders a cache for the current display and DPI using FFmpeg with `libx264`. Later launches reuse it. This repository contains source code, not pre-rendered movies or character artwork. Supply your own authorized PNGs as described in assets/README.md before building. The launcher uses its own shortcut and leaves the official installation and shortcuts intact.
+The first launch renders a cache for the current display and DPI using FFmpeg with `libx264`. Later launches reuse it. Source code and five authorized character images are included; pre-rendered movies are not. The launcher uses its own shortcut and leaves the official installation and shortcuts intact.
 
-Project additions are source-available under PolyForm Noncommercial 1.0.0. Third-party components retain their original licenses. This project is not affiliated with OpenAI.
+Project additions are source-available under PolyForm Noncommercial 1.0.0. Bundled character artwork is provided under CC BY-NC 4.0; see ARTWORK_LICENSE.md. Third-party components retain their original licenses. This project is not affiliated with OpenAI.

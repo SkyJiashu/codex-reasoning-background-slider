@@ -329,7 +329,7 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 var report = new {
-                    buildVersion="0.2.13.0", previewOnly=preview, firstFramePresented, firstFrameMs,
+                    buildVersion="0.2.14.0", previewOnly=preview, firstFramePresented, firstFrameMs,
                     frameMatched=matchedFrame, backgroundPreparationEnabled,
                     shellReady=!preview&&controller.ShellReady, assetsDecoded=!preview&&controller.Ready,
                     rendererPaintReady=!preview&&controller.PaintReady,
@@ -393,7 +393,7 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 string path = Path.Combine(qa, "status.json"), temp = path + ".next";
-                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "0.2.13.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
+                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "0.2.14.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
                 if (File.Exists(path)) File.Replace(temp, path, null); else File.Move(temp, path);
             } catch { }
         }

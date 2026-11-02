@@ -1,16 +1,17 @@
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$entries=@('README.md','LICENSE','NOTICE','THIRD_PARTY_NOTICES.md','.gitignore','.gitattributes','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd','licenses/dragon-codex-boot-MIT.txt','tools/RenderFilm.cs','docs/architecture.md')
+$entries=@('README.md','LICENSE','NOTICE','ARTWORK_LICENSE.md','THIRD_PARTY_NOTICES.md','.gitignore','.gitattributes','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd','licenses/dragon-codex-boot-MIT.txt','tools/RenderFilm.cs','docs/architecture.md')
 foreach($folder in @('src','tests')){
     $entries+=@(Get-ChildItem -LiteralPath (Join-Path $root $folder) -File | Where-Object {$_.Extension -in @('.cs','.js','.cjs','.css','.manifest','.ps1')} | ForEach-Object {($_.FullName.Substring($root.Length+1)).Replace('\','/')})
 }
 foreach($name in @('build.ps1','test.ps1','package.ps1','package-source.ps1','render-film.ps1','install-shortcut.ps1')){$entries+='scripts/'+$name}
 $entries+='assets/README.md'
-# Public source archives intentionally omit user-supplied artwork.
+$entries+='assets/stages-v10-review/01_Light.png'
+foreach($name in @('medium.png','high.png','extra-high.png','ultra.png')){$entries+='assets/stages-v11-nose/'+$name}
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [IO.Directory]::CreateDirectory((Join-Path $root 'build')) | Out-Null
-$path=Join-Path $root 'build/CrystalDragon-source-0.2.13.zip'
+$path=Join-Path $root 'build/CrystalDragon-source-0.2.14.zip'
 $stream=[IO.File]::Open($path,[IO.FileMode]::Create,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
 try{
     $zip=[IO.Compression.ZipArchive]::new($stream,[IO.Compression.ZipArchiveMode]::Create,$true)

@@ -3,12 +3,12 @@ $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $outputRoot = Join-Path $projectRoot 'build/CrystalDragon'
 $report = Get-Content -LiteralPath (Join-Path $outputRoot 'qa/offline-verification.json') -Encoding UTF8 -Raw | ConvertFrom-Json
 if ($report.status -ne 'offline-checks-passed' -or $report.realCodexLaunchOrInjection -ne $false) { throw 'Run offline tests before packaging.' }
-$entries = @('CrystalDragon.exe','RenderFilm.exe','animation-source.txt','skin.js','skin.css','preload.js','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd','scripts/install-shortcut.ps1','README.md','LICENSE','NOTICE','THIRD_PARTY_NOTICES.md','licenses/dragon-codex-boot-MIT.txt')
+$entries = @('CrystalDragon.exe','RenderFilm.exe','animation-source.txt','skin.js','skin.css','preload.js','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd','scripts/install-shortcut.ps1','README.md','LICENSE','NOTICE','ARTWORK_LICENSE.md','assets/README.md','THIRD_PARTY_NOTICES.md','licenses/dragon-codex-boot-MIT.txt')
 foreach ($name in @('01_Light.png','medium.png','high.png','extra-high.png','ultra.png')) { $entries += 'assets/' + $name }
 if (@($entries | Select-Object -Unique).Count -ne $entries.Count) { throw 'Duplicate package entry.' }
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$zipPath = Join-Path $projectRoot 'build/CrystalDragon-0.2.13-windows-x64.zip'
+$zipPath = Join-Path $projectRoot 'build/CrystalDragon-0.2.14-windows-x64.zip'
 $stream = [IO.File]::Open($zipPath, [IO.FileMode]::Create, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
 try {
     $zip = [IO.Compression.ZipArchive]::new($stream, [IO.Compression.ZipArchiveMode]::Create, $true)

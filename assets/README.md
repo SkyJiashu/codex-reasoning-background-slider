@@ -1,6 +1,6 @@
-# 自备角色素材
+# 角色素材与自定义
 
-当前公开版本不分发角色原图。请使用自己创作或获准使用的 PNG，放到以下位置：
+已包含以下五档角色素材，采用 [CC BY-NC 4.0](../ARTWORK_LICENSE.md)。如果更换素材，请使用自己创作或获准使用的 PNG，保持以下文件位置：
 
 | 推理档位 | 源文件位置 |
 | --- | --- |
@@ -14,4 +14,4 @@
 
 首次启动会使用 Ultra 图在用户电脑本地生成视频缓存。原图变化会使对应缓存失效并重新生成。生成视频、首尾帧和本地状态不应提交到仓库。
 
-Supply your own authorized artwork at the paths above before building. This repository grants no rights in third-party images.
+The five bundled images are available under CC BY-NC 4.0. Custom replacements must be your own or otherwise authorized. No rights in third-party images or branding are granted.

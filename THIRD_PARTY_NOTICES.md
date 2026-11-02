@@ -17,7 +17,7 @@ The upstream MIT notice is retained in [licenses/dragon-codex-boot-MIT.txt](lice
 
 ## Character artwork
 
-No character artwork is included in this public repository. Users supply their own authorized images. The project code license does not grant rights in those images. Development artwork involved AI generation or editing; no claim of ownership in third-party artwork is made.
+The maintainer has confirmed ownership of, or authorization to publicly redistribute, the five bundled character images. They include AI generation or editing and are offered for noncommercial use under CC BY-NC 4.0, as identified in [ARTWORK_LICENSE.md](ARTWORK_LICENSE.md). Embedded nonessential metadata was removed without changing the image pixel payload. This does not grant rights in third-party branding or materials beyond the rights the licensor is authorized to license.
 
 No third-party startup movie or audio is distributed. Startup movies and their poster frames are generated locally from the input artwork and animation code.
 

@@ -3,7 +3,7 @@ param()
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $requiredArt=@('assets/stages-v10-review/01_Light.png','assets/stages-v11-nose/medium.png','assets/stages-v11-nose/high.png','assets/stages-v11-nose/extra-high.png','assets/stages-v11-nose/ultra.png')
-foreach($relative in $requiredArt){if(!(Test-Path -LiteralPath (Join-Path $projectRoot $relative) -PathType Leaf)){throw 'Add your authorized character PNGs first; see assets/README.md.'}}
+foreach($relative in $requiredArt){if(!(Test-Path -LiteralPath (Join-Path $projectRoot $relative) -PathType Leaf)){throw 'A bundled character PNG is missing. Restore the complete source archive; see assets/README.md.'}}
 $outputRoot = Join-Path $projectRoot 'build/CrystalDragon'
 $compiler = Join-Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Windows)) 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 if (!(Test-Path -LiteralPath $compiler -PathType Leaf)) { throw '.NET Framework x64 compiler unavailable.' }
@@ -36,7 +36,8 @@ foreach ($name in $art.Keys) {
     if ((Get-FileHash -LiteralPath $sourceArt).Hash -ne (Get-FileHash -LiteralPath $outputArt).Hash) { throw 'Approved art copy mismatch.' }
 }
 foreach ($name in @('skin.js','skin.css','preload.js')) { Copy-Item -LiteralPath (Join-Path $projectRoot ('src/' + $name)) -Destination (Join-Path $outputRoot $name) -Force }
-foreach ($name in @('README.md','LICENSE','NOTICE','THIRD_PARTY_NOTICES.md','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd')) { Copy-Item -LiteralPath (Join-Path $projectRoot $name) -Destination (Join-Path $outputRoot $name) -Force }
+foreach ($name in @('README.md','LICENSE','NOTICE','ARTWORK_LICENSE.md','THIRD_PARTY_NOTICES.md','Preview.cmd','Start-Cold-Test.cmd','Restore.cmd','Install-Shortcut.cmd')) { Copy-Item -LiteralPath (Join-Path $projectRoot $name) -Destination (Join-Path $outputRoot $name) -Force }
+Copy-Item -LiteralPath (Join-Path $projectRoot 'assets/README.md') -Destination (Join-Path $outputRoot 'assets/README.md') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'scripts/install-shortcut.ps1') -Destination (Join-Path $outputRoot 'scripts/install-shortcut.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'licenses/dragon-codex-boot-MIT.txt') -Destination (Join-Path $outputRoot 'licenses/dragon-codex-boot-MIT.txt') -Force
 Write-Output ('Built offline candidate: ' + (Join-Path $outputRoot 'CrystalDragon.exe'))
