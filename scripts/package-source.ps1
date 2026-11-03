@@ -12,7 +12,7 @@ foreach($name in @('medium.png','high.png','extra-high.png','ultra.png')){$entri
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [IO.Directory]::CreateDirectory((Join-Path $root 'build')) | Out-Null
-$path=Join-Path $root 'build/CodexReasoningBackgroundSlider-source-0.2.16.zip'
+$path=Join-Path $root 'build/CodexReasoningBackgroundSlider-source-1.0.0.zip'
 $stream=[IO.File]::Open($path,[IO.FileMode]::Create,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
 try{
     $zip=[IO.Compression.ZipArchive]::new($stream,[IO.Compression.ZipArchiveMode]::Create,$true)

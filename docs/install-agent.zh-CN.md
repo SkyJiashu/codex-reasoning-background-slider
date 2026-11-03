@@ -26,12 +26,16 @@
 
 5. 先对安装目录内的 CrystalDragon.exe 执行 --probe，并等待结束。只读取新生成 qa/identity.json 的 ready、version、coldStartAllowed、error_class 等固定字段，确认官方客户端身份可被识别。coldStartAllowed=false 只表示当前 Codex 在运行，不是安装失败。若官方客户端缺失或系统不支持，报告这个先决条件，不要用不明来源的 Codex 包替代。
 
+   v1.0.0 按已注册官方包的默认规则选择客户端配置目录，只在启动器自身进程中清除继承的开发配置目录/构建覆盖项。安装时不要复制这些覆盖项、拷贝登录数据或迁移旧配置目录；登录和窗口状态以官方默认配置为准。
+
 6. 阅读并执行本项目 scripts/install-shortcut.ps1，创建独立的 Codex Reasoning Slider 桌面入口。该脚本应只创建或更新本项目自己标记的快捷方式。保留原版 Codex 的文件、快捷方式、注册和任务栏固定项，不扫描磁盘去改写其他入口。首次真正启动后的可选绑定询问由用户自己选择；安装 agent 不代选“是”，也不运行 --entrypoints 或 manage-entrypoints.ps1 来静默接管官方入口。
 
 7. 记录预览开始时间，然后运行安装目录内的 CrystalDragon.exe --preview 并等待正常结束。它只生成缓存并播放本项目动画，不启动 Codex。首次出现缓存生成进度是正常现象，等它完成，不要按 Esc 或取消。
    必须验证 qa/handoff.json 是这次预览新写入的报告，且 previewOnly、filmOpened、filmCompleted、transitionComplete 均为 true，filmFailed、skipped、timedOut 均为 false。不能只凭退出码 0 或旧报告就宣布成功。失败时检查本项目固定错误类别，修复明确缺失的依赖后再验证；不要读取原生客户端的认证文件或聊天日志。
 
 8. 安装阶段不要运行默认启动、--cold-test、--restore 或 --probe-create 来代替离线验证，也不要强制结束当前 Codex 或任何其他应用。尤其当你自己正在 Codex 里运行时，不要关闭承载当前对话的程序。安装和缓存预览完成后，我可以保存工作、正常退出 Codex，再从新入口启动。
+
+   离线预览不能验证原生通知点击路由；未经单独的真实客户端检查，不要把该行为标成已修复或已验证。
 
 最后简洁告诉我：安装版本、安装目录、桌面入口、FFmpeg 是否已就绪、缓存/预览是否通过，以及下一次从哪个入口启动。如果存在确实需要我操作的系统限制，说明具体剩余步骤，不要把尚未验证的项目标成成功。
 ```

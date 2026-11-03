@@ -80,6 +80,12 @@ namespace CrystalDragon {
                 StartupInfoEx info = new StartupInfoEx(); info.Info.Size = Marshal.SizeOf(typeof(StartupInfoEx)); info.Attributes = list;
                 string command = "\"" + executable + "\"" + PreparationSwitches + " --remote-debugging-pipe --remote-debugging-io-pipes=" + childRead.ToInt64() + "," + childWrite.ToInt64();
                 ProcessInfo process;
+                // Match a normal registered-package launch. Inherited development
+                // overrides can give this client a different userData/singleton
+                // namespace from Windows notification activation. Do not inspect
+                // or copy their values; change only this helper's environment.
+                Environment.SetEnvironmentVariable("CODEX_ELECTRON_USER_DATA_PATH", null, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("BUILD_FLAVOR", null, EnvironmentVariableTarget.Process);
                 if (!CreateProcessW(executable, new StringBuilder(command), IntPtr.Zero, IntPtr.Zero, true, 0x00080000u | (suspended ? 4u : 0u), IntPtr.Zero, workingDirectory ?? Path.GetDirectoryName(executable), ref info, out process)) throw new Win32Exception(Marshal.GetLastWin32Error(), "create-process");
                 ProcessId = process.Id; processHandle = process.Process; CloseHandle(process.Thread);
                 output.DisposeLocalCopyOfClientHandle(); input.DisposeLocalCopyOfClientHandle();

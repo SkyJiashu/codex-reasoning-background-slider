@@ -26,12 +26,16 @@ Follow these steps:
 
 5. Run the installed CrystalDragon.exe with --probe and wait for completion. Read only the fixed ready, version, coldStartAllowed and error_class fields from the newly generated qa/identity.json. Confirm the official client can be identified. coldStartAllowed=false means Codex is currently running, not that installation failed. If the official client or a system prerequisite is missing, report it rather than substituting an untrusted Codex package.
 
+   v1.0.0 launches the registered official package with its default profile rules. It discards inherited development profile/build overrides only within the launcher process. Do not reproduce those overrides, copy login data or migrate an earlier profile during installation; existing login and window state follow the official default profile.
+
 6. Inspect and run this project's scripts/install-shortcut.ps1 to create the independent Codex Reasoning Slider desktop entry. It should create or update only shortcuts marked as belonging to this project. Preserve the official Codex files, shortcuts, registration and taskbar pins. Do not scan drives to rewrite other entrypoints. Leave the optional first-real-launch binding question for the user; the installation agent must not choose Yes or use --entrypoints/manage-entrypoints.ps1 to silently take over official shortcuts.
 
 7. Record the preview start time, run the installed CrystalDragon.exe --preview, and wait for normal completion. This prepares the local cache and plays this project's animation without starting Codex. Initial cache-generation progress is expected; let it finish without pressing Esc or cancelling.
    Require a fresh qa/handoff.json written by this invocation. previewOnly, filmOpened, filmCompleted and transitionComplete must be true; filmFailed, skipped and timedOut must be false. Exit code zero or an old report alone is insufficient. If a check fails, inspect the project's fixed error categories, repair an identified missing dependency and validate again. Do not inspect native-client authentication files or chat logs.
 
 8. During installation, do not use the default launch, --cold-test, --restore or --probe-create as substitutes for offline verification. Do not force-stop Codex or another application. In particular, never close the application hosting this conversation. After installation and cache preview finish, I can save my work, exit Codex normally and use the new shortcut.
+
+   Offline preview does not verify native notification-click routing; do not report that behavior as fixed or tested without a separate real-client check.
 
 Finally report the installed version, installation directory, shortcut, FFmpeg readiness, cache/preview verification result and the entrypoint to use next time. If an actual system restriction requires my involvement, identify the remaining step precisely; do not label unverified work as successful.
 ```

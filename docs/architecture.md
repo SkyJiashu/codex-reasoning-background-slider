@@ -54,6 +54,7 @@ The last confirmed visual stage is stored as a bounded digit in the launcher's o
 
 - The launcher works with the client process it creates and validates; an already-running client is not taken over.
 - The connection uses private inherited pipes rather than a TCP debugging listener.
+- Immediately before creating the client, the helper removes `CODEX_ELECTRON_USER_DATA_PATH` and `BUILD_FLAVOR` from its own process environment, without reading, enumerating, saving or restoring their values. The signed package then chooses its native default profile and build flavor, matching ordinary activation instead of inheriting a development profile from the caller. No profile path is hardcoded, copied or deleted, and no parent, user or system environment is modified. This addresses profile-based singleton separation; actual notification reuse still needs a cold-start notification-click check.
 - Closing the visual splash does not close the client connection. The helper keeps the transport alive until its client exits.
 - Restore removes the project's styling, artwork and listeners without closing Codex.
 - Background detection reads interface attributes and geometry, not chat content, typed prompts or authentication configuration.

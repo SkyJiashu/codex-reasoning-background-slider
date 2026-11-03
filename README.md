@@ -4,6 +4,8 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+**v1.0.0 release** · [Download for Windows x64](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.0)
+
 Drag Codex's native reasoning-effort slider to preview a matching dragon-girl background. Five stages differ in pose, costume and wing span. Ultra adds local purple accents and stars. A locally cached data-to-character startup animation is also included.
 
 This is an independent community launcher for the Windows Codex desktop app, with no affiliation to OpenAI. It uses its own entry point and preserves the official application and shortcuts.
@@ -78,6 +80,8 @@ The output is in `build/CrystalDragon/`.
 Run `Install-Shortcut.cmd` if you want a desktop entry. It only creates this project's independent shortcut and does not scan, replace or bind official entries. Keep the extracted or built directory in a permanent location.
 
 By default, original shortcuts continue to open the official client directly. The launcher requires existing Codex clients to be closed; it does not take over a running instance.
+
+The client uses its registered package's default profile, as a normal official launch does. The launcher discards inherited development overrides for the client profile and build flavor in its own process only, removing one source of separate profile and single-instance contexts. It does not move or delete earlier profiles or change persistent user or system settings; login and window state follow the official default profile. Notification routing remains native and is not replaced by shortcut binding. Cold-start notification-click behavior has not yet been verified end to end.
 
 ### Optional: use the launcher for existing Codex shortcuts
 
