@@ -4,7 +4,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-**v1.0.0 release** · [Download for Windows x64](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.0)
+**v1.0.1 release** · [Download for Windows x64](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.1)
 
 Drag Codex's native reasoning-effort slider to preview a matching dragon-girl background. Five stages differ in pose, costume and wing span. Ultra adds local purple accents and stars. A locally cached data-to-character startup animation is also included.
 

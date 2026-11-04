@@ -4,7 +4,7 @@
 
 [English](README.md) | **简体中文**
 
-**v1.0.0 正式版** · [下载 Windows x64 版本](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.0)
+**v1.0.1 正式版** · [下载 Windows x64 版本](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.1)
 
 拖动 Codex 原生推理强度滑块，即可预览对应的龙娘背景。五档形象通过姿态、服饰和龙翼区分，Ultra 配有局部紫色与星星效果；同时提供“数据汇聚成龙娘”的本地缓存启动动画。
 
