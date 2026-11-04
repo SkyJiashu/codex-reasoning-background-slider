@@ -4,9 +4,9 @@ $entries=@('README.md','README.zh-CN.md','README.en.md','LICENSE','NOTICE','ARTW
 foreach($folder in @('src','tests')){
     $entries+=@(Get-ChildItem -LiteralPath (Join-Path $root $folder) -File | Where-Object {$_.Extension -in @('.cs','.js','.cjs','.css','.manifest','.ps1')} | ForEach-Object {($_.FullName.Substring($root.Length+1)).Replace('\','/')})
 }
-foreach($name in @('build.ps1','test.ps1','package.ps1','package-source.ps1','render-film.ps1','install-shortcut.ps1','manage-entrypoints.ps1')){$entries+='scripts/'+$name}
-$entries+='assets/README.md'
-$entries+=@('tools/render-readme-demos.cjs','tools/render-readme-demos.capture.js','tools/render-readme-demos.encode.ps1')
+foreach($name in @('build.ps1','test.ps1','package.ps1','package-source.ps1','render-film.ps1','install-shortcut.ps1','manage-entrypoints.ps1','check-client-compat.cjs')){$entries+='scripts/'+$name}
+$entries+=@('assets/README.md','assets/app-icon.ico')
+$entries+=@('tools/make-icon.ps1','tools/render-readme-demos.cjs','tools/render-readme-demos.capture.js','tools/render-readme-demos.encode.ps1')
 $entries+='assets/stages-v10-review/01_Light.png'
 foreach($name in @('medium.png','high.png','extra-high.png','ultra.png')){$entries+='assets/stages-v11-nose/'+$name}
 Add-Type -AssemblyName System.IO.Compression
