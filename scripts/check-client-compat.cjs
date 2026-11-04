@@ -1,7 +1,7 @@
 // Read-only: reports whether the installed Codex front end still ships the attributes the skin reads.
 // Run after a Codex update: node scripts/check-client-compat.cjs
 const fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
-const REQUIRED = ['data-selected-reasoning-effort', 'data-app-shell-frame', 'data-codex-composer-root', 'codexWindowType'];
+const REQUIRED = ['data-selected-reasoning-effort', 'data-app-shell-frame', 'data-codex-composer-root', 'codexWindowType', 'sendMessageFromView', 'quit-app'];
 
 function scan(asarPath, needles) {
   const file = fs.openSync(asarPath, 'r');

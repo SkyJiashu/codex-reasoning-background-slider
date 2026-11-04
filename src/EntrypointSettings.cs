@@ -66,6 +66,7 @@ namespace CrystalDragon {
             }
             string powershell=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"WindowsPowerShell","v1.0","powershell.exe");
             var start=new ProcessStartInfo(powershell,String.Join(" ",values.Select(Quote))) {UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden,RedirectStandardOutput=true,RedirectStandardError=true};
+            start.EnvironmentVariables.Remove("PSModulePath"); // A value inherited from PowerShell 7 breaks Windows PowerShell cmdlets.
             Dictionary<string,object> result;
             using(var child=Process.Start(start)) {
                 Task errors=Task.Run(delegate {var buffer=new char[4096];while(child.StandardError.Read(buffer,0,buffer.Length)>0){}});
