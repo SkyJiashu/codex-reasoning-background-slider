@@ -81,7 +81,7 @@ Run `Install-Shortcut.cmd` if you want a desktop entry. It only creates this pro
 
 To use the taskbar, pin this shortcut. The launcher gives the Codex window its own identity and icon, so the window groups under this shortcut, apart from the official icon. The official icon is pinned by app package and still opens the stock client, and the launcher cannot rewrite it; unpin it if you do not need it. You can also right-click the taskbar button of a launcher-started Codex and pin it, which also goes through the launcher.
 
-By default, original shortcuts continue to open the official client directly. The launcher requires existing Codex clients to be closed; it does not take over a running instance.
+By default, original shortcuts continue to open the official client directly. For the animation and background, fully exit any existing client first. If Codex is already running, the launcher does not take it over and brings its window to the front instead; a client not opened by this launcher stays without the background.
 
 The client uses its registered package's default profile, as a normal official launch does. The launcher discards inherited development overrides for the client profile and build flavor in its own process only, removing one source of separate profile and single-instance contexts. It does not move or delete earlier profiles or change persistent user or system settings; login and window state follow the official default profile. Notification routing remains native and is not replaced by shortcut binding. Cold-start notification-click behavior has not yet been verified end to end.
 
