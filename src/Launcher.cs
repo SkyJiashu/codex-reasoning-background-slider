@@ -84,8 +84,8 @@ namespace CrystalDragon {
             return false;
         }
         // A second official launch wakes a client hidden to the tray through its own single-instance
-        // handling, then exits. Returns false when no client is running or it could not be woken.
-        internal static bool ActivateRunning(string directory) {
+        // handling, then exits. Returns false when the caller should go on to a normal launch.
+        internal static bool ActivateRunning(string directory, bool offerRecovery) {
             try {
                 var identity = Discover(directory);
                 string executable = Path.GetFullPath((string)identity["path"]);
@@ -93,18 +93,38 @@ namespace CrystalDragon {
                 NativeWindow.AllowForeground();
                 Process.Start(new ProcessStartInfo((string)identity["launchPath"]) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable) }).Dispose();
                 var clock = Stopwatch.StartNew();
-                while (clock.ElapsedMilliseconds < 3000) {
+                bool shown = false;
+                while (clock.ElapsedMilliseconds < 6000) {
                     foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable))) {
                         using (process) {
                             IntPtr window = NativeWindow.Find(process.Id, true);
-                            if (window != IntPtr.Zero && NativeWindow.RevealOwned(window, process.Id)) return true;
+                            if (window == IntPtr.Zero) continue;
+                            shown = true;
+                            if (NativeWindow.RevealOwned(window, process.Id)) return true;
                         }
                     }
                     Thread.Sleep(100);
                 }
-                return true; // Woken by the client itself; only the extra focus request did not land.
+                if (shown || !offerRecovery) return true; // A window exists; only the focus request did not land.
+                // Windows close but the processes stay when the launcher's debugging pipe is lost; nothing can wake that client.
+                if (MessageBox.Show("Codex 还在后台运行，但已经打不开窗口。\n\n要结束它并重新启动吗？未保存的内容可能丢失。", "Codex 推理背景滑块", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return true;
+                KillClient(executable);
+                return false;
             } catch { return false; } // The normal launch path then reports the problem.
         }
+        static void KillClient(string executable) {
+            foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable))) {
+                using (process) { if (process.Threads.Count > 0 && OfficialIdentity.IsRunningClient(process, executable)) { process.Kill(); process.WaitForExit(5000); } }
+            }
+        }
+        // The client's window close button only hides it, so this is what really ends it.
+        internal void RequestQuit() {
+            var client = host; string executable = clientExecutable;
+            if (client == null || executable == null) return;
+            try { client.RequestBrowserClose(3000); } catch { } // The pipe closing with the client also lands here.
+            if (!client.WaitForExit(8000)) KillClient(executable);
+        }
+        string clientExecutable;
         internal void RequestRestore() { restored = true; }
         int ReadStartupStage() {
             // Our own one-byte visual cache, never native app/account configuration.
@@ -139,6 +159,7 @@ namespace CrystalDragon {
                 BeginPreparation();
                 var identity = identityTask.GetAwaiter().GetResult();
                 string executable = Path.GetFullPath((string)identity["path"]);
+                clientExecutable = executable;
                 Status = "existing-client-check";
                 if (IsAlreadyRunning(executable)) { Status = "cold-start-required"; return; }
                 Status = "background-payload-prepare";
@@ -362,7 +383,7 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 var report = new {
-                    buildVersion="1.0.1.0", previewOnly=preview, firstFramePresented, firstFrameMs,
+                    buildVersion="1.0.2.0", previewOnly=preview, firstFramePresented, firstFrameMs,
                     frameMatched=matchedFrame, backgroundPreparationEnabled,
                     shellReady=!preview&&controller.ShellReady, assetsDecoded=!preview&&controller.Ready,
                     rendererPaintReady=!preview&&controller.PaintReady,
@@ -408,10 +429,19 @@ namespace CrystalDragon {
                         // Fixed byte protocol; no variable-length request or client data is accepted.
                         int action = server.ReadByte();
                         if (action == 1) controller.RequestRestore();
-                        server.WriteByte(action == 1 ? (byte)1 : (byte)0); server.Flush();
+                        if (action == 2) Task.Run((Action)controller.RequestQuit);
+                        server.WriteByte(action == 1 || action == 2 ? (byte)1 : (byte)0); server.Flush();
                     }
                 } catch { Thread.Sleep(500); }
             });
+        }
+        static int Quit() {
+            try {
+                using (var client = new NamedPipeClientStream(".", ControlName, PipeDirection.InOut)) {
+                    client.Connect(1200); client.WriteByte(2); client.Flush();
+                    return client.ReadByte() == 1 ? 0 : 1;
+                }
+            } catch { return 1; }
         }
         static int Restore() {
             try {
@@ -426,15 +456,16 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 string path = Path.Combine(qa, "status.json"), temp = path + ".next";
-                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "1.0.1.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
+                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "1.0.2.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
                 if (File.Exists(path)) File.Replace(temp, path, null); else File.Move(temp, path);
             } catch { }
         }
         [STAThread] public static int Main(string[] args) {
             string root = AppDomain.CurrentDomain.BaseDirectory;
             try {
-                if (args.Length > 1 || (args.Length == 1 && args[0] != "--preview" && args[0] != "--cold-test" && args[0] != "--restore" && args[0] != "--render-preview" && args[0] != "--probe" && args[0] != "--probe-create" && args[0] != "--entrypoints")) return 2;
+                if (args.Length > 1 || (args.Length == 1 && args[0] != "--preview" && args[0] != "--cold-test" && args[0] != "--restore" && args[0] != "--quit" && args[0] != "--render-preview" && args[0] != "--probe" && args[0] != "--probe-create" && args[0] != "--entrypoints")) return 2;
                 if (args.Contains("--restore")) return Restore();
+                if (args.Contains("--quit")) return Quit();
                 if (args.Contains("--entrypoints"))return EntrypointSettings.Manage(root);
                 if (args.Contains("--probe")) {
                     var identity = SkinController.Discover(root); Directory.CreateDirectory(Path.Combine(root, "qa"));
@@ -464,8 +495,8 @@ namespace CrystalDragon {
                 bool owns;
                 using (Mutex mutex = new Mutex(true, "Local\\" + ControlName, out owns)) {
                     // Without a client yet, the other launcher is still starting it: launching here would race it.
-                    if (!owns) { SkinController.ActivateRunning(root); return 0; }
-                    if (SkinController.ActivateRunning(root)) return 0;
+                    if (!owns) { SkinController.ActivateRunning(root, false); return 0; }
+                    if (SkinController.ActivateRunning(root, true)) return 0;
                     var frame=NativeWindow.InitialFrame();
                     string cached=CachePreparation.Prepare(root,frame);
                     var controller = new SkinController(root); controller.BeginPreparation();
@@ -475,7 +506,10 @@ namespace CrystalDragon {
                         if(splash.CompletedNormally)
                             app.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle,new Action(()=>EntrypointSettings.OfferSafely(root)));
                     };
-                    splash.FirstFramePresented += delegate { Task.Run(delegate {
+                    ClientTray tray = null;
+                    splash.FirstFramePresented += delegate {
+                        try { tray = new ClientTray(Process.GetCurrentProcess().MainModule.FileName, () => SkinController.ActivateRunning(root, false), controller.RequestQuit); } catch { } // Cosmetic: the client runs without it.
+                        Task.Run(delegate {
                         controller.Run();
                         app.Dispatcher.BeginInvoke(new Action(delegate {
                             if (controller.ProcessId == 0) {
@@ -487,6 +521,7 @@ namespace CrystalDragon {
                                 if (splash.IsVisible) MessageBox.Show(splash, message, "Codex 推理背景滑块 · 启动未执行", MessageBoxButton.OK, MessageBoxImage.Information);
                                 else MessageBox.Show(message, "Codex 推理背景滑块 · 启动未执行", MessageBoxButton.OK, MessageBoxImage.Information);
                             }
+                            if (tray != null) tray.Dispose();
                             app.Shutdown();
                         }));
                     }); };

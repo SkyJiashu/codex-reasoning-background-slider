@@ -134,6 +134,11 @@ namespace CrystalDragon {
         }
         internal Dictionary<string, object> Send(string method, object args, string session, int milliseconds) {
             if (method != "Target.getTargets" && method != "Target.attachToTarget" && method != "Target.detachFromTarget" && method != "Runtime.evaluate") throw new ArgumentException("method-not-allowed");
+            return Dispatch(method, args, session, milliseconds);
+        }
+        // Only for the user's explicit "quit" request, kept out of the general allowlist above.
+        internal void RequestBrowserClose(int milliseconds) { Dispatch("Browser.close", new { }, null, milliseconds); }
+        Dictionary<string, object> Dispatch(string method, object args, string session, int milliseconds) {
             int id = Interlocked.Increment(ref nextId);
             var completion = new TaskCompletionSource<Dictionary<string, object>>();
             lock (pendingGate) pending.Add(id, completion);

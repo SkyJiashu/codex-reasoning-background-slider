@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace CrystalDragon {
     // Gives the launched client's windows their own taskbar identity. With the package identity they
@@ -24,15 +25,18 @@ namespace CrystalDragon {
         [DllImport("user32.dll")] static extern bool EnumWindows(EnumCallback callback, IntPtr parameter);
         [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr window, out uint processId);
         [DllImport("user32.dll")] static extern IntPtr GetWindow(IntPtr window, uint command);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr window, StringBuilder name, int size);
         [DllImport("user32.dll")] static extern IntPtr SendMessageTimeout(IntPtr window, uint message, IntPtr w, IntPtr l, uint flags, uint timeout, out IntPtr result);
         readonly HashSet<IntPtr> applied = new HashSet<IntPtr>();
-        readonly string launcher;
+        readonly string launcher, windowClass;
         // USER icons die with their creating process; this helper outlives the client it serves.
         readonly IntPtr largeIcon, smallIcon;
-        internal TaskbarIdentity(string launcherPath) {
-            launcher = launcherPath;
+        // Only the client's UI windows need an identity; helper windows such as its tray host are left alone.
+        internal TaskbarIdentity(string launcherPath, string uiWindowClass = "Chrome_WidgetWin_1") {
+            launcher = launcherPath; windowClass = uiWindowClass;
             ExtractIconEx(launcher, 0, out largeIcon, out smallIcon, 1);
         }
+        internal static string ClassOf(IntPtr window) { var name = new StringBuilder(256); GetClassName(window, name, 256); return name.ToString(); }
         static PropertyKey Key(uint id) { return new PropertyKey { Format = new Guid("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3"), Id = id }; }
         static IPropertyStore Open(IntPtr window) {
             Guid iid = new Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99"); IPropertyStore store;
@@ -52,7 +56,7 @@ namespace CrystalDragon {
         internal void Apply(int processId) {
             EnumWindows(delegate(IntPtr window, IntPtr unused) {
                 uint owner; GetWindowThreadProcessId(window, out owner);
-                if (owner != processId || GetWindow(window, 4) != IntPtr.Zero || !applied.Add(window)) return true;
+                if (owner != processId || GetWindow(window, 4) != IntPtr.Zero || ClassOf(window) != windowClass || !applied.Add(window)) return true;
                 try {
                     IPropertyStore store = Open(window);
                     try {
