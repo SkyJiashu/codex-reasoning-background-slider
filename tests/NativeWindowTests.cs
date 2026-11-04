@@ -131,6 +131,13 @@ class NativeWindowTests {
             foreach (byte opacity in new byte[] { 0, 64, 128, 192, 255 }) Assert(NativeWindow.BlendThumbnail(thumbnail, host, target, opacity), "DWM opacity progression: " + NativeWindow.BlendFailure);
             NativeWindow.Flush();
         } finally { NativeWindow.ReleaseThumbnail(thumbnail); overlay.Close(); source.Close(); }
+        var hidden=new Window(); IntPtr hiddenHandle=new WindowInteropHelper(hidden).EnsureHandle(); // Never shown; ShowInTaskbar=false would add a hidden owner.
+        var taskbar=new TaskbarIdentity(Process.GetCurrentProcess().MainModule.FileName);
+        taskbar.Apply(0);
+        Assert(TaskbarIdentity.Read(hiddenHandle)==null,"another process's filter leaves own windows untouched");
+        taskbar.Apply(Process.GetCurrentProcess().Id);
+        Assert(TaskbarIdentity.Read(hiddenHandle)==TaskbarIdentity.AppId,"hidden window receives the taskbar identity before its first show");
+        hidden.Close();
         Console.WriteLine("Handoff: own off-screen windows matched; complex preparation regions and resize reapplication, unchanged placement, atomic resize rectangles, invalid/minimized target rejection, non-activating owned restore, negative-frame cropping and DWM blend endpoints passed. Real Codex not controlled.");
         return 0;
     }

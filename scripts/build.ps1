@@ -14,7 +14,7 @@ foreach ($folder in @('assets','scripts','licenses')) { [IO.Directory]::CreateDi
 $frameworkRoot = Split-Path -Parent $compiler
 $references = @('System.dll','System.Core.dll','System.Xaml.dll','System.Web.Extensions.dll','System.Drawing.dll','System.Windows.Forms.dll')
 foreach ($name in @('WindowsBase.dll','PresentationCore.dll','PresentationFramework.dll')) { $references += Join-Path $frameworkRoot ('WPF/' + $name) }
-$compileArgs = @('/nologo','/target:winexe','/platform:x64','/optimize+','/warnaserror+',('/win32manifest:' + (Join-Path $projectRoot 'src/app.manifest')),('/out:' + (Join-Path $outputRoot 'CrystalDragon.exe')))
+$compileArgs = @('/nologo','/target:winexe','/platform:x64','/optimize+','/warnaserror+',('/win32manifest:' + (Join-Path $projectRoot 'src/app.manifest')),('/win32icon:' + (Join-Path $projectRoot 'assets/app-icon.ico')),('/out:' + (Join-Path $outputRoot 'CrystalDragon.exe')))
 foreach ($reference in $references) { $compileArgs += '/reference:' + $reference }
 $compileArgs += @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src') -Filter '*.cs' | ForEach-Object FullName)
 & $compiler @compileArgs

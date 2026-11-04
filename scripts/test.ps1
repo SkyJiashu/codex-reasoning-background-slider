@@ -50,7 +50,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Identity boundary checks failed.' }
 $handoffTests = Join-Path $projectRoot 'build/NativeWindowTests.exe'
 $handoffArgs = @('/nologo','/target:exe','/platform:x64',('/out:' + $handoffTests),('/win32manifest:' + (Join-Path $projectRoot 'src/app.manifest')),'/reference:System.Xaml.dll','/reference:System.Windows.Forms.dll','/reference:System.Drawing.dll')
 foreach ($name in @('PresentationFramework.dll','PresentationCore.dll','WindowsBase.dll')) { $handoffArgs += '/reference:'+(Join-Path $frameworkRoot ('WPF/'+$name)) }
-$handoffArgs += @((Join-Path $projectRoot 'src/NativeWindow.cs'),(Join-Path $projectRoot 'tests/NativeWindowTests.cs'))
+$handoffArgs += @((Join-Path $projectRoot 'src/NativeWindow.cs'),(Join-Path $projectRoot 'src/TaskbarIdentity.cs'),(Join-Path $projectRoot 'tests/NativeWindowTests.cs'))
 & $compiler @handoffArgs
 if ($LASTEXITCODE -ne 0) { throw 'Handoff test compile failed.' }
 & $handoffTests
@@ -100,4 +100,9 @@ if ($identity.ready -ne $true -or $identity.coldStartAllowed -isnot [bool]) { th
     realCodexLaunchOrInjection = $false
     coldStartAcceptance = 'pending-user-manual-exit'
 } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $outputRoot 'qa/offline-verification.json') -Encoding UTF8
+# Compares raw frame bytes: icons extracted through the shell are rescaled for the display DPI.
+$icon=[IO.File]::ReadAllBytes((Join-Path $projectRoot 'assets/app-icon.ico'))
+$frameEntry=6+16*([BitConverter]::ToUInt16($icon,4)-1)
+$frame=[Text.Encoding]::GetEncoding(28591).GetString($icon,[BitConverter]::ToInt32($icon,$frameEntry+12),[BitConverter]::ToInt32($icon,$frameEntry+8))
+if(![Text.Encoding]::GetEncoding(28591).GetString([IO.File]::ReadAllBytes((Join-Path $outputRoot 'CrystalDragon.exe'))).Contains($frame)){throw 'Launcher does not embed assets/app-icon.ico.'}
 Write-Output 'Offline checks passed. No Codex process was started, connected, modified or stopped.'
