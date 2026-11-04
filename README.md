@@ -79,6 +79,8 @@ The output is in `build/CrystalDragon/`.
 
 Run `Install-Shortcut.cmd` if you want a desktop entry. It only creates this project's independent shortcut and does not scan, replace or bind official entries. Keep the extracted or built directory in a permanent location.
 
+To use the taskbar, pin this shortcut and unpin the official Codex icon. The official icon is pinned by app package and opens the stock client directly, and the launcher cannot rewrite it. This shortcut carries the Codex app identity, so the window groups under it. With both pinned, the window may group under the official icon.
+
 By default, original shortcuts continue to open the official client directly. The launcher requires existing Codex clients to be closed; it does not take over a running instance.
 
 The client uses its registered package's default profile, as a normal official launch does. The launcher discards inherited development overrides for the client profile and build flavor in its own process only, removing one source of separate profile and single-instance contexts. It does not move or delete earlier profiles or change persistent user or system settings; login and window state follow the official default profile. Notification routing remains native and is not replaced by shortcut binding. Cold-start notification-click behavior has not yet been verified end to end.

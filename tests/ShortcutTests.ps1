@@ -23,11 +23,14 @@ $officialHash=(Get-FileHash -LiteralPath $officialPath -Algorithm SHA256).Hash
 $shortcutPath=Join-Path $destination 'Codex Reasoning Slider.lnk'
 $shortcut=$shell.CreateShortcut($shortcutPath)
 if($shortcut.TargetPath -ne $fakeExe -or $shortcut.Arguments -ne '--cold-test' -or $shortcut.WorkingDirectory -ne $release) {throw 'Release shortcut properties did not match.'}
+if([LinkIdentity]::Get($shortcutPath) -ne 'OpenAI.Codex_2p2nqsd0c76g0!App') {throw 'Shortcut does not carry the client identity for taskbar grouping.'}
+if([LinkIdentity]::Get($officialPath)) {throw 'Unrelated link gained a client identity.'}
 # An owned shortcut may be updated, without scanning other links.
 $shortcut.TargetPath=$otherExe;$shortcut.Save()
 & $installer -DestinationDirectory $destination
 $shortcut=$shell.CreateShortcut($shortcutPath)
 if($shortcut.TargetPath -ne $fakeExe) {throw 'Owned shortcut was not updated.'}
+if([LinkIdentity]::Get($shortcutPath) -ne 'OpenAI.Codex_2p2nqsd0c76g0!App') {throw 'Owned update lost the client identity.'}
 # A collision with an unowned link must remain byte-for-byte untouched.
 $shortcut.Description='A different launcher';$shortcut.TargetPath=$otherExe;$shortcut.Save()
 $unownedHash=(Get-FileHash -LiteralPath $shortcutPath -Algorithm SHA256).Hash
