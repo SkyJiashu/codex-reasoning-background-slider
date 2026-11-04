@@ -83,6 +83,28 @@ namespace CrystalDragon {
             }
             return false;
         }
+        // A second official launch wakes a client hidden to the tray through its own single-instance
+        // handling, then exits. Returns false when no client is running or it could not be woken.
+        internal static bool ActivateRunning(string directory) {
+            try {
+                var identity = Discover(directory);
+                string executable = Path.GetFullPath((string)identity["path"]);
+                if (!IsAlreadyRunning(executable)) return false;
+                NativeWindow.AllowForeground();
+                Process.Start(new ProcessStartInfo((string)identity["launchPath"]) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable) }).Dispose();
+                var clock = Stopwatch.StartNew();
+                while (clock.ElapsedMilliseconds < 3000) {
+                    foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable))) {
+                        using (process) {
+                            IntPtr window = NativeWindow.Find(process.Id, true);
+                            if (window != IntPtr.Zero && NativeWindow.RevealOwned(window, process.Id)) return true;
+                        }
+                    }
+                    Thread.Sleep(100);
+                }
+                return true; // Woken by the client itself; only the extra focus request did not land.
+            } catch { return false; } // The normal launch path then reports the problem.
+        }
         internal void RequestRestore() { restored = true; }
         int ReadStartupStage() {
             // Our own one-byte visual cache, never native app/account configuration.
@@ -441,7 +463,9 @@ namespace CrystalDragon {
                 }
                 bool owns;
                 using (Mutex mutex = new Mutex(true, "Local\\" + ControlName, out owns)) {
-                    if (!owns) { MessageBox.Show("本启动器已有活动连接。请使用恢复入口，或等待 Codex 正常退出。", "Codex 推理背景滑块"); return 0; }
+                    // Without a client yet, the other launcher is still starting it: launching here would race it.
+                    if (!owns) { SkinController.ActivateRunning(root); return 0; }
+                    if (SkinController.ActivateRunning(root)) return 0;
                     var frame=NativeWindow.InitialFrame();
                     string cached=CachePreparation.Prepare(root,frame);
                     var controller = new SkinController(root); controller.BeginPreparation();

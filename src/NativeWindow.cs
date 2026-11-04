@@ -174,6 +174,9 @@ namespace CrystalDragon {
             }
             return IsWindowVisible(target) && !IsIconic(target);
         }
+        [DllImport("user32.dll")] static extern bool AllowSetForegroundWindow(int processId);
+        // Passes on the foreground right the user's click gave this process.
+        internal static void AllowForeground() { AllowSetForegroundWindow(-1); }
         internal static bool RevealOwned(IntPtr target, int processId) {
             if (!RestoreOwned(target, processId)) return false;
             SetForegroundWindow(target);
