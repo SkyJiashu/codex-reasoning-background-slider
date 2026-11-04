@@ -114,6 +114,10 @@ The launcher's `appearance-stage.txt` stores only the last visual stage confirme
 
 Background detection depends on interface attributes exposed by the client and may require adaptation after client updates. Unknown, ambiguous or unsupported controls are never guessed to be the highest effort.
 
+The launcher resolves the client version from the Windows package registration on every launch, so updates need no reconfiguration. The first launch after a Codex update may migrate local data and sit on the startup logo for minutes. Do not close the window then: later launches can fail with `timed out waiting for state db backfill`. To recover, wait about 15 minutes, launch once more and let it finish.
+
+If the background stops following the effort control after an update, run `node scripts/check-client-compat.cjs`. It only reads the installed client package and lists any interface attributes the skin needs that have disappeared.
+
 The default mapping has five groups: `none/minimal/low`, `medium`, `high`, `xhigh` and `max/ultra`. If a model's highest available effort is only `high` or `xhigh`, it is not automatically mapped to Ultra.
 
 Handoff does not wait for every background request; the native page may continue loading. A playback-decoding failure retains a still frame and records a failure state.

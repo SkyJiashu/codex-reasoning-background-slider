@@ -42,5 +42,6 @@ foreach($name in @('install-agent.zh-CN.md','install-agent.en.md')) {Copy-Item -
 Copy-Item -LiteralPath (Join-Path $projectRoot 'assets/README.md') -Destination (Join-Path $outputRoot 'assets/README.md') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'scripts/install-shortcut.ps1') -Destination (Join-Path $outputRoot 'scripts/install-shortcut.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'scripts/manage-entrypoints.ps1') -Destination (Join-Path $outputRoot 'scripts/manage-entrypoints.ps1') -Force
+Copy-Item -LiteralPath (Join-Path $projectRoot 'scripts/check-client-compat.cjs') -Destination (Join-Path $outputRoot 'scripts/check-client-compat.cjs') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'licenses/dragon-codex-boot-MIT.txt') -Destination (Join-Path $outputRoot 'licenses/dragon-codex-boot-MIT.txt') -Force
 Write-Output ('Built offline candidate: ' + (Join-Path $outputRoot 'CrystalDragon.exe'))
