@@ -17,11 +17,11 @@ class Element {
   addEventListener(k, fn) { this.listeners.set(k, fn); }
   removeEventListener(k, fn) { if (this.listeners.get(k) === fn) this.listeners.delete(k); }
 }
-const trigger = effort => new Element({ 'data-codex-intelligence-trigger': '', 'data-selected-reasoning-effort': effort });
+const trigger = effort => new Element({ 'data-selected-reasoning-effort': effort });
 function fixture(native = [], sliders = []) {
   const doc = new Element(); doc.body = new Element(); doc.head = new Element(); doc.documentElement = new Element();
   doc.querySelector = selector => selector === '#root' ? {} : null;
-  doc.querySelectorAll = selector => selector.includes('data-codex-intelligence-trigger') ? native : sliders;
+  doc.querySelectorAll = selector => selector.includes('data-selected-reasoning-effort') ? native : sliders;
   doc.createElement = tag => new Element({}, tag.toUpperCase());
   const frames = new Map(), intervals = new Map(); let seq = 0;
   const win = new Element(); Object.assign(win, {
@@ -44,7 +44,7 @@ test('actual native effort attributes take precedence over unrelated ranges', ()
   const f = fixture([trigger('ultra')], [new Element({ 'aria-label': 'Volume', 'aria-valuetext': 'High' })]);
   assert.deepEqual(skin.read(f.doc), { status: 'confirmed', stage: 4, source: 'native-effort-attribute' });
   for (const [effort, stage] of [['low', 0], ['medium', 1], ['high', 2], ['xhigh', 3], ['max', 4]]) {
-    f.doc.querySelectorAll = selector => selector.includes('data-codex-intelligence-trigger') ? [trigger(effort)] : [];
+    f.doc.querySelectorAll = selector => selector.includes('data-selected-reasoning-effort') ? [trigger(effort)] : [];
     assert.equal(skin.read(f.doc).stage, stage);
   }
 });

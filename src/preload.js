@@ -88,7 +88,7 @@
     if (!root) return missing;
     const frames = nodes(root, '[data-app-shell-frame]', 4);
     const composers = nodes(root, COMPOSER, 8);
-    const nativeTriggers = nodes(root, '[data-codex-intelligence-trigger]', 8);
+    const nativeTriggers = nodes(root, '[data-selected-reasoning-effort]', 8);
     const composerScopes = [...new Set([...composers, ...nativeTriggers.map(n => n.closest(COMPOSER + ', form')).filter(Boolean)])].slice(0, 12);
     const editorPresent = composerScopes.some(n => nodes(n, EDITOR, 1).length > 0);
     // Before the real editor mounts, readiness cannot pass. Do not synchronously

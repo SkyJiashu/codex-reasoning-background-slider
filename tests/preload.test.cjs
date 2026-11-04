@@ -103,14 +103,14 @@ test('missing root, hidden composer and shell-less markup never become ready; tr
   const plain = fixture(); plain.frame.attrs = {}; plain.composer.attrs = {}; assert.equal(preload.install(plain.win).reason, 'shell-not-ready');
   const hidden = fixture(); hidden.composer.display = 'none'; preload.install(hidden.win); assert.equal(hidden.advance().reason, 'composer-not-ready');
   const fallback = fixture(); fallback.frame.children = [fallback.sidebar];
-  fallback.frame.append(new Element('form').append(new Element('textarea'), new Element('button', { 'data-codex-intelligence-trigger': '' })));
+  fallback.frame.append(new Element('form').append(new Element('textarea'), new Element('button', { 'data-selected-reasoning-effort': 'high' })));
   preload.install(fallback.win); assert.equal(fallback.advance().ready, true);
   const api = fallback.win.__dragonPreloadV1; api.dispose(); api.dispose(); assert.equal(api.status().reason, 'disposed'); assert.equal(fallback.win.__dragonPreloadV1, undefined);
 });
 test('lazy composer wrappers and trigger-only placeholders wait for a real non-loading editor', () => {
   const f = fixture();
   f.composer.children = [];
-  f.composer.append(new Element('div', { 'aria-busy': 'true' }), new Element('button', { 'data-codex-intelligence-trigger': '' }));
+  f.composer.append(new Element('div', { 'aria-busy': 'true' }), new Element('button', { 'data-selected-reasoning-effort': 'high' }));
   assert.equal(preload.install(f.win).reason, 'composer-not-ready');
   assert.equal(f.advance(5000).ready, false);
   f.composer.children = []; f.composer.append(f.editor);
@@ -120,7 +120,7 @@ test('lazy composer wrappers and trigger-only placeholders wait for a real non-l
   f.composer.append(new Element('span', { 'aria-busy': 'true', class: 'animate-pulse' }));
   assert.equal(f.status().reason, 'settling'); assert.equal(f.advance().ready, true, 'an unrelated busy icon does not replace editor readiness');
   const triggerOnly = fixture(); triggerOnly.frame.children = [triggerOnly.sidebar];
-  triggerOnly.frame.append(new Element('button', { 'data-codex-intelligence-trigger': '' }));
+  triggerOnly.frame.append(new Element('button', { 'data-selected-reasoning-effort': 'high' }));
   assert.equal(preload.install(triggerOnly.win).reason, 'composer-not-ready');
   assert.equal(triggerOnly.advance(5000).ready, false);
 });
@@ -140,6 +140,23 @@ test('an open sidebar waits for visible navigation controls while allowing zero 
   assert.equal(f.status().reason, 'settling'); assert.equal(f.advance().ready, true);
   assert.equal(f.sidebar.children.length, 0, 'history remains empty');
   f.newChat.display = 'none'; assert.equal(f.status().reason, 'sidebar-not-ready');
+});
+
+test('slow-start hint appears only on the bare bootstrap page and leaves with it', () => {
+  const source = require('node:fs').readFileSync(require('node:path').join(__dirname, '../src/Launcher.cs'), 'utf8');
+  const expression = JSON.parse(source.match(/const string SlowStartHint = ("[^\n]*");/)[1]);
+  let control = null, node = null;
+  const document = {
+    querySelector: () => control,
+    getElementById: () => node,
+    createElement: () => ({ style: {}, setAttribute() {}, remove() { node = null; } }),
+    body: { append(element) { node = element; } },
+  };
+  const run = () => require('node:vm').runInNewContext(expression, { document });
+  assert.equal(run(), true); assert.match(node.textContent, /不要关闭/);
+  const shown = node; assert.equal(run(), true); assert.equal(node, shown, 'repeat polls do not stack hints');
+  control = {}; assert.equal(run(), false, 'a login form, error page or shell settles the hint'); assert.equal(node, null);
+  assert.equal(run(), false); assert.equal(node, null);
 });
 
 test('one native poll samples structural readiness once and installs/reads skin in the same document', () => {

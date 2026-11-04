@@ -9,7 +9,7 @@
   const ROOT = 'dragon-skin-v1';
   const SELECTOR = 'input[type="range"], [role="slider"]';
   const LABEL = /reason|effort|thinking|推理|思考/i;
-  const NATIVE = '[data-codex-intelligence-trigger][data-selected-reasoning-effort]';
+  const NATIVE = '[data-selected-reasoning-effort]';
   const POWER = '[data-model-picker-power-slider], [data-reasoning-slider]';
   const EFFORTS = { none: 0, minimal: 0, low: 0, medium: 1, high: 2, xhigh: 3, max: 4, ultra: 4 };
 

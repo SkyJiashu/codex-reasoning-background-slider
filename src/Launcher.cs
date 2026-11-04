@@ -47,7 +47,11 @@ namespace CrystalDragon {
         long nativeShellMs=-1, composerMs=-1, sidebarMs=-1, fontsMs=-1, editorPresentMs=-1, documentFocusedMs=-1, documentVisibleMs=-1, protocolPolls, protocolTimeouts, maxProbeMs, maxSampleMs, settlingResets;
         // Each poll samples readiness and installs/reads our skin in the SAME document
         // and turn, instead of three serial round trips through a busy renderer.
-        internal const string PollExpression = "(() => {const renderer=window.codexWindowType==='electron';if(!renderer)return {renderer:false};const shell=!!document.querySelector('#root')&&!!document.querySelector('[data-app-shell-frame], [data-codex-intelligence-trigger]');const preparation=window.__dragonPreloadV1?.status();const state=window.__dragonSkinV1?window.__dragonSkinV1.status():document.head&&document.body&&typeof window.__dragonInstallPreparedV1==='function'?window.__dragonInstallPreparedV1():null;return {renderer,shell,preparation,state,warming:typeof window.__dragonInstallPreparedV1==='function',predecoded:!!window.__dragonSkinWarmV1?.decoded};})()";
+        internal const string PollExpression = "(() => {const renderer=window.codexWindowType==='electron';if(!renderer)return {renderer:false};const shell=!!document.querySelector('#root')&&!!document.querySelector('[data-app-shell-frame], [data-selected-reasoning-effort]');const preparation=window.__dragonPreloadV1?.status();const state=window.__dragonSkinV1?window.__dragonSkinV1.status():document.head&&document.body&&typeof window.__dragonInstallPreparedV1==='function'?window.__dragonInstallPreparedV1():null;return {renderer,shell,preparation,state,warming:typeof window.__dragonInstallPreparedV1==='function',predecoded:!!window.__dragonSkinWarmV1?.decoded};})()";
+        // Closing the client during a post-update data migration leaves its lease held, and later launches then fail.
+        // Only the bare bootstrap page qualifies: any control means login, an error page or the shell is showing.
+        internal const string SlowStartHint = "(() => {const id='dragon-slow-start';const bare=!document.querySelector('[data-app-shell-frame], [data-selected-reasoning-effort], button, input, textarea, a');let hint=document.getElementById(id);if(!bare){hint?.remove();return false;}if(!hint&&document.body){hint=document.createElement('div');hint.id=id;hint.setAttribute('role','status');hint.textContent='Codex 正在准备本地数据，更新后首次启动可能需要几分钟，请不要关闭窗口';hint.style.cssText='position:fixed;left:0;right:0;bottom:12%;text-align:center;font:14px system-ui,sans-serif;color:#fff;opacity:.8;pointer-events:none;z-index:2147483647';document.body.append(hint);}return true;})()";
+        const long SlowStartHintDelayMs = 20000;
         internal int? NativeErrorCode;
         internal int ProcessId { get { return host == null ? 0 : host.ProcessId; } }
         int IStartupClient.ProcessId { get { return createdIdentityVerified ? ProcessId : 0; } }
@@ -72,7 +76,8 @@ namespace CrystalDragon {
         internal static bool IsAlreadyRunning(string executable) {
             foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable))) {
                 using (process) {
-                    try { if (OfficialIdentity.IsRunningClient(process,executable)) return true; }
+                    // A failed start can leave a threadless object behind until a kernel reference drops; it cannot run anything.
+                    try { if (process.Threads.Count>0 && OfficialIdentity.IsRunningClient(process,executable)) return true; }
                     catch { return true; } // Cannot prove an existing client absent: do not attempt a cold launch.
                 }
             }
@@ -122,12 +127,12 @@ namespace CrystalDragon {
                 Status = "created-client-identity-check"; host.ValidateExecutable(executable); createdIdentityVerified=true; Status = "client-started";
                 {
                     DateTime deadline = DateTime.UtcNow.AddSeconds(30);
-                    bool cleaned = false, preparedOnce = false;
+                    bool cleaned = false, preparedOnce = false, hintSettled = false;
                     while (!host.HasExited) {
                         if (restored) {
                             if (!cleaned) {
                                 cleaned = true;
-                                foreach (string session in sessions.Values) try { host.Evaluate(session, "(() => {window.__dragonPreloadV1?.dispose();window.__dragonSkinWarmV1?.dispose();window.__dragonSkinV1?.dispose();delete window.__dragonInstallPreparedV1;return true;})()"); } catch { Status = "restore-unconfirmed"; }
+                                foreach (string session in sessions.Values) try { host.Evaluate(session, "(() => {document.getElementById('dragon-slow-start')?.remove();window.__dragonPreloadV1?.dispose();window.__dragonSkinWarmV1?.dispose();window.__dragonSkinV1?.dispose();delete window.__dragonInstallPreparedV1;return true;})()"); } catch { Status = "restore-unconfirmed"; }
                                 if (Status != "restore-unconfirmed") Status = "restored";
                                 Entry.WriteStatus(root, Status, Ready, true, FailureStage, ErrorClass, NativeErrorCode);
                             }
@@ -152,6 +157,7 @@ namespace CrystalDragon {
                                     Interlocked.Exchange(ref maxProbeMs,Math.Max(Interlocked.Read(ref maxProbeMs),preparationClock.ElapsedMilliseconds-probeStarted));
                                     if (probe == null || !Equals(probe["renderer"], true)) continue;
                                     Mark(ref pageSeenMs);
+                                    if(!hintSettled && preparationClock.ElapsedMilliseconds>=SlowStartHintDelayMs) hintSettled=!Equals(host.Evaluate(session,SlowStartHint),true);
                                     var state=probe["state"] as Dictionary<string,object>;
                                     if (state==null && !Equals(probe["warming"],true)) {
                                         if (payload==null)payload=payloadTask.GetAwaiter().GetResult();

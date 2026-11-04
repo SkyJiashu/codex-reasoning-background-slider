@@ -114,6 +114,10 @@ https://github.com/SkyJiashu/codex-reasoning-background-slider
 
 背景识别依赖客户端提供的界面属性。客户端更新后，这些属性可能变化；未识别、模糊或不受支持的控件不会被猜测为最高档位。
 
+启动器每次从 Windows 包注册信息解析客户端版本，更新后无需重新配置。Codex 更新后首次启动可能要迁移本地数据，会停在启动图标数分钟；此时请不要关闭窗口，否则后续启动可能报 `timed out waiting for state db backfill`，约 15 分钟后再启动一次并等它完成即可恢复。
+
+如果更新后背景不再跟随档位，运行 `node scripts/check-client-compat.cjs`，它只读取已安装的客户端包，并列出皮肤依赖但已消失的界面属性。
+
 默认映射为 `none/minimal/low`、`medium`、`high`、`xhigh`、`max/ultra` 五组。若某个模型最高只提供 `high` 或 `xhigh`，不会自动将其映射到 Ultra。
 
 动画交接不等待所有后台请求完成。原生页面若仍在加载，会继续自行完成；播放解码失败时保留静帧并记录失败状态。
