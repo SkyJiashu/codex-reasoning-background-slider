@@ -132,9 +132,12 @@ class NativeWindowTests {
             NativeWindow.Flush();
         } finally { NativeWindow.ReleaseThumbnail(thumbnail); overlay.Close(); source.Close(); }
         var hidden=new Window(); IntPtr hiddenHandle=new WindowInteropHelper(hidden).EnsureHandle(); // Never shown; ShowInTaskbar=false would add a hidden owner.
-        var taskbar=new TaskbarIdentity(Process.GetCurrentProcess().MainModule.FileName);
+        string launcherImage=Process.GetCurrentProcess().MainModule.FileName;
+        var taskbar=new TaskbarIdentity(launcherImage,TaskbarIdentity.ClassOf(hiddenHandle));
         taskbar.Apply(0);
         Assert(TaskbarIdentity.Read(hiddenHandle)==null,"another process's filter leaves own windows untouched");
+        new TaskbarIdentity(launcherImage,"OtherWindowClass").Apply(Process.GetCurrentProcess().Id);
+        Assert(TaskbarIdentity.Read(hiddenHandle)==null,"windows of another class, such as the tray host, stay untouched");
         taskbar.Apply(Process.GetCurrentProcess().Id);
         Assert(TaskbarIdentity.Read(hiddenHandle)==TaskbarIdentity.AppId,"hidden window receives the taskbar identity before its first show");
         hidden.Close();
