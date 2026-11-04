@@ -4,7 +4,7 @@
 
 [English](README.md) | **简体中文**
 
-**v1.0.2 正式版** · [下载 Windows x64 版本](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.2)
+**v1.0.3 正式版** · [下载 Windows x64 版本](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.3)
 
 拖动 Codex 原生推理强度滑块，即可预览对应的龙娘背景。五档形象通过姿态、服饰和龙翼区分，Ultra 配有局部紫色与星星效果；同时提供“数据汇聚成龙娘”的本地缓存启动动画。
 
@@ -81,7 +81,7 @@ https://github.com/SkyJiashu/codex-reasoning-background-slider
 
 要在任务栏使用，请固定这个快捷方式。启动器会给 Codex 窗口设置专属标识和龙娘图标，窗口会归到这个快捷方式下，与官方图标分开。官方图标按应用包固定，点击仍打开原版，启动器无法改写，不需要时可取消固定。也可以在龙娘启动的 Codex 任务栏按钮上右键固定，固定后同样走本启动器。
 
-启动器运行期间会在系统托盘显示龙娘图标（Windows 可能把它收在 ^ 里）。左键或“打开 Codex”恢复窗口，“彻底退出 Codex”结束 Codex 和启动器。Codex 窗口的关闭按钮只是隐藏窗口。退出时会先请求正常关闭，约 8 秒后仍未结束则强制结束，未保存的内容可能丢失。
+启动器运行期间会在系统托盘显示龙娘图标（Windows 可能把它收在 ^ 里）。左键或“打开 Codex”恢复窗口，“彻底退出 Codex”结束 Codex 和启动器。Codex 窗口的关闭按钮只是隐藏窗口。退出时走 Codex 自己的退出流程：它会保存状态，有进行中的对话时可能先询问，取消则继续运行。只有不支持这个流程的客户端，才会在约 8 秒后被强制结束，这时未保存的内容可能丢失。
 
 如果启动器意外退出，Codex 的窗口会跟着关闭，进程却留在后台。这时再点启动器，会询问是否结束它并重新启动。
 

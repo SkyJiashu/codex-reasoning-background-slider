@@ -1,6 +1,6 @@
 using System.Reflection;
 [assembly: AssemblyTitle("Codex Reasoning Background Slider")]
-[assembly: AssemblyVersion("1.0.2.0")]
-[assembly: AssemblyFileVersion("1.0.2.0")]
+[assembly: AssemblyVersion("1.0.3.0")]
+[assembly: AssemblyFileVersion("1.0.3.0")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("StartupPresentationTests")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("StartupPreparationTests")]

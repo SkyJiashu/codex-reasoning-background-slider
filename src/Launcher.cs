@@ -121,9 +121,16 @@ namespace CrystalDragon {
         internal void RequestQuit() {
             var client = host; string executable = clientExecutable;
             if (client == null || executable == null) return;
+            // The client's own quit path: it saves state and asks before interrupting active chats,
+            // so answering "cancel" must leave it running. Never force this one.
+            string session = quitSession;
+            try { if (session != null && Equals(client.Evaluate(session, QuitExpression), true)) return; } catch { }
+            // Older or changed clients only. Browser.close closes the windows without quitting the app.
             try { client.RequestBrowserClose(3000); } catch { } // The pipe closing with the client also lands here.
             if (!client.WaitForExit(8000)) KillClient(executable);
         }
+        const string QuitExpression = "(()=>{const bridge=window.electronBridge;if(typeof bridge?.sendMessageFromView!=='function')return false;bridge.sendMessageFromView({type:'quit-app'});return true;})()";
+        volatile string quitSession;
         string clientExecutable;
         internal void RequestRestore() { restored = true; }
         int ReadStartupStage() {
@@ -201,6 +208,7 @@ namespace CrystalDragon {
                                     var probe = host.Evaluate(session, PollExpression) as Dictionary<string, object>;
                                     Interlocked.Exchange(ref maxProbeMs,Math.Max(Interlocked.Read(ref maxProbeMs),preparationClock.ElapsedMilliseconds-probeStarted));
                                     if (probe == null || !Equals(probe["renderer"], true)) continue;
+                                    quitSession = session;
                                     Mark(ref pageSeenMs);
                                     if(!hintSettled && preparationClock.ElapsedMilliseconds>=SlowStartHintDelayMs) hintSettled=!Equals(host.Evaluate(session,SlowStartHint),true);
                                     var state=probe["state"] as Dictionary<string,object>;
@@ -383,7 +391,7 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 var report = new {
-                    buildVersion="1.0.2.0", previewOnly=preview, firstFramePresented, firstFrameMs,
+                    buildVersion="1.0.3.0", previewOnly=preview, firstFramePresented, firstFrameMs,
                     frameMatched=matchedFrame, backgroundPreparationEnabled,
                     shellReady=!preview&&controller.ShellReady, assetsDecoded=!preview&&controller.Ready,
                     rendererPaintReady=!preview&&controller.PaintReady,
@@ -456,7 +464,7 @@ namespace CrystalDragon {
             try {
                 string qa = Path.Combine(directory, "qa"); Directory.CreateDirectory(qa);
                 string path = Path.Combine(qa, "status.json"), temp = path + ".next";
-                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "1.0.2.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
+                File.WriteAllText(temp, new JavaScriptSerializer().Serialize(new { buildVersion = "1.0.3.0", status = status, rendererInstalled = ready, restoreRequested = restored, failureStage = failureStage, error_class = errorClass, nativeErrorCode = nativeErrorCode, utc = DateTime.UtcNow.ToString("o"), liveCompatibilityVerified = false }), Encoding.UTF8);
                 if (File.Exists(path)) File.Replace(temp, path, null); else File.Move(temp, path);
             } catch { }
         }

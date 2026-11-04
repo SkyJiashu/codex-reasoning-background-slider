@@ -8,7 +8,7 @@ foreach ($name in @('01_Light.png','medium.png','high.png','extra-high.png','ult
 if (@($entries | Select-Object -Unique).Count -ne $entries.Count) { throw 'Duplicate package entry.' }
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$zipPath = Join-Path $projectRoot 'build/CodexReasoningBackgroundSlider-1.0.2-windows-x64.zip'
+$zipPath = Join-Path $projectRoot 'build/CodexReasoningBackgroundSlider-1.0.3-windows-x64.zip'
 $stream = [IO.File]::Open($zipPath, [IO.FileMode]::Create, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
 try {
     $zip = [IO.Compression.ZipArchive]::new($stream, [IO.Compression.ZipArchiveMode]::Create, $true)

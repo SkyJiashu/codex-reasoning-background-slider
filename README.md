@@ -4,7 +4,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-**v1.0.2 release** · [Download for Windows x64](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.2)
+**v1.0.3 release** · [Download for Windows x64](https://github.com/SkyJiashu/codex-reasoning-background-slider/releases/tag/v1.0.3)
 
 Drag Codex's native reasoning-effort slider to preview a matching dragon-girl background. Five stages differ in pose, costume and wing span. Ultra adds local purple accents and stars. A locally cached data-to-character startup animation is also included.
 
@@ -81,7 +81,7 @@ Run `Install-Shortcut.cmd` if you want a desktop entry. It only creates this pro
 
 To use the taskbar, pin this shortcut. The launcher gives the Codex window its own identity and icon, so the window groups under this shortcut, apart from the official icon. The official icon is pinned by app package and still opens the stock client, and the launcher cannot rewrite it; unpin it if you do not need it. You can also right-click the taskbar button of a launcher-started Codex and pin it, which also goes through the launcher.
 
-While the launcher runs, it shows a dragon icon in the system tray (Windows may keep it under the ^ arrow). Left-click or "打开 Codex" restores the window, and "彻底退出 Codex" ends Codex and the launcher. The Codex window close button only hides the window. Quitting first asks Codex to close normally, then force-ends it after about 8 seconds, so unsaved content may be lost.
+While the launcher runs, it shows a dragon icon in the system tray (Windows may keep it under the ^ arrow). Left-click or "打开 Codex" restores the window, and "彻底退出 Codex" ends Codex and the launcher. The Codex window close button only hides the window. Quitting uses Codex's own quit path: it saves its state, may ask before interrupting active chats, and keeps running if you cancel. Only a client without that path is force-ended after about 8 seconds, and unsaved content may be lost in that case.
 
 If the launcher exits unexpectedly, the Codex windows close while its processes stay in the background. Clicking the launcher then asks whether to end them and start again.
 
