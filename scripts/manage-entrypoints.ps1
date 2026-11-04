@@ -111,8 +111,7 @@ try{
                 $temp=Join-Path (Split-Path -Parent $path) ([Guid]::NewGuid().ToString('N')+'.lnk')
                 $replacement=$shell.CreateShortcut($temp)
                 $replacement.TargetPath=$LauncherPath;$replacement.Arguments='--cold-test';$replacement.WorkingDirectory=Split-Path -Parent $LauncherPath
-                $icon=[string]$link.IconLocation
-                $replacement.IconLocation=if($icon-and!$icon.StartsWith('\\')-and$icon -notmatch '^[a-z]+://'){$icon}else{$LauncherPath+',0'}
+                $replacement.IconLocation=$LauncherPath+',0' # A bound link must look different from the original it replaced.
                 $replacement.Description='Codex Reasoning Background Slider launch binding'
                 $replacement.Save()
                 $record.installedHash=Hash $temp

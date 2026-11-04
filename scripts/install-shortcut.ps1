@@ -31,7 +31,7 @@ $shortcut.WorkingDirectory=Split-Path -Parent $executable
 $shortcut.IconLocation=$executable+',0'
 $shortcut.Description=$marker
 $shortcut.Save()
-# Carrying the client's identity makes Windows group its window under this shortcut once pinned.
+# Shares the identity the launcher gives the client's window, so the window groups under this shortcut once pinned.
 Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
@@ -66,6 +66,6 @@ public static class LinkIdentity {
     }
 }
 '@
-try {[LinkIdentity]::Set($shortcutPath,'OpenAI.Codex_2p2nqsd0c76g0!App')}
+try {[LinkIdentity]::Set($shortcutPath,'SkyJiashu.CodexReasoningSlider')}
 catch {Write-Warning 'The shortcut works, but once pinned its Codex window may appear under a separate taskbar icon.'}
 Write-Output ('Independent launcher shortcut saved: '+$shortcutPath)

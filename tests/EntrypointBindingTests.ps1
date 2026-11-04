@@ -26,7 +26,7 @@ function Run([string]$action,[string]$target=$launcher){
 }
 $result=Run Bind
 Assert ($result.changed -eq 3-and$result.failed -eq 0) ('Only the three basic official links should bind: '+($result|ConvertTo-Json -Compress))
-foreach($path in @($exeLink,$aliasLink,$shellLink)){$link=$shell.CreateShortcut($path);Assert ($link.TargetPath -eq $launcher-and$link.Arguments -eq '--cold-test') 'Bound target or arguments incorrect.'}
+foreach($path in @($exeLink,$aliasLink,$shellLink)){$link=$shell.CreateShortcut($path);Assert ($link.TargetPath -eq $launcher-and$link.Arguments -eq '--cold-test'-and$link.IconLocation -eq ($launcher+',0')) 'Bound target, arguments or icon incorrect.'}
 foreach($path in @($uriLink,$projectLink,$wrongLink,$unrelated)){Assert ((Hash $path)-eq$original[$path]) 'An argument-bearing, foreign or unrelated link changed.'}
 $result=Run Bind
 Assert ($result.changed -eq 0-and$result.failed -eq 0) 'An already bound installation should be idempotent.'

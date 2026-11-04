@@ -128,7 +128,9 @@ namespace CrystalDragon {
                 {
                     DateTime deadline = DateTime.UtcNow.AddSeconds(30);
                     bool cleaned = false, preparedOnce = false, hintSettled = false;
+                    var taskbar = new TaskbarIdentity(Path.Combine(root, "CrystalDragon.exe"));
                     while (!host.HasExited) {
+                        taskbar.Apply(host.ProcessId);
                         if (restored) {
                             if (!cleaned) {
                                 cleaned = true;
